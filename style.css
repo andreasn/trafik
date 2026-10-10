@@ -6,12 +6,6 @@
   --header-text: #ffffff;
   --row-alt: #f4f7fa;
   --muted: #57606a;
-  --bar: #006aa7;
-  --bar-active: #004b7a;
-  --grid: #e4e8ec;
-  --axis: #8c959f;
-  --tooltip-bg: #1a1a1a;
-  --tooltip-text: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,12 +16,6 @@
     --header-bg: #004b7a;
     --row-alt: #1b1f24;
     --muted: #9da7b1;
-    --bar: #3d8fcc;
-    --bar-active: #6aaee0;
-    --grid: #262b31;
-    --axis: #59626c;
-    --tooltip-bg: #e6e6e6;
-    --tooltip-text: #121417;
   }
 }
 
@@ -79,63 +67,10 @@ h2 {
   margin-top: 0;
 }
 
-.chart {
-  margin: 1.5rem 0;
-}
-
-.chart figcaption,
 caption {
   font-weight: 600;
   text-align: left;
   margin-bottom: 0.5rem;
-}
-
-.chart-plot {
-  width: 100%;
-  min-height: 260px;
-}
-
-.chart-plot svg {
-  display: block;
-  max-width: 100%;
-  overflow: visible;
-  font-size: 12px;
-}
-
-.chart .grid {
-  stroke: var(--grid);
-  stroke-width: 1;
-}
-
-.chart .axis {
-  stroke: var(--axis);
-  stroke-width: 1;
-}
-
-.chart .tick {
-  fill: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.chart .value {
-  fill: var(--text);
-  font-weight: 600;
-}
-
-.chart .bar {
-  fill: var(--bar);
-}
-
-.chart .hit {
-  fill: transparent;
-}
-
-.chart .column {
-  outline: none;
-}
-
-.chart .column.active .bar {
-  fill: var(--bar-active);
 }
 
 .number {
@@ -152,18 +87,6 @@ tbody th {
 .source {
   color: var(--muted);
   font-size: 0.85rem;
-}
-
-.tooltip {
-  position: absolute;
-  pointer-events: none;
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  background: var(--tooltip-bg);
-  color: var(--tooltip-text);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  white-space: nowrap;
 }
 
 @media (max-width: 30rem) {
