@@ -1,26 +1,5 @@
-// Fills the population column from data/population.json.
-async function loadPopulation() {
-  const source = document.getElementById("population-source");
-
-  try {
-    const response = await fetch("data/population.json");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const { data, source: name, retrieved } = await response.json();
-
-    for (const { year, population } of data) {
-      const cell = document.querySelector(`td[data-year="${year}"]`);
-      if (cell) cell.textContent = population.toLocaleString("en");
-    }
-    source.textContent = `Population on 31 December. Source: ${name}, retrieved ${retrieved}.`;
-  } catch (error) {
-    source.textContent = `Could not load population data (${error.message}).`;
-  }
-}
-
-loadPopulation();
-
-// Builds the municipality table from data/municipalities.json, with a
-// filter box and sortable columns.
+// Builds the municipality table from data/municipalities.json (fetched from
+// SCB by scripts/fetch_municipalities.py), with a filter box and sortable columns.
 async function loadMunicipalities() {
   const table = document.getElementById("municipalities");
   const headRow = table.querySelector("thead tr");
