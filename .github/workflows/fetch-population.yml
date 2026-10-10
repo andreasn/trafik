@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Explore SCB car tables (temporary)
+        run: python3 -u scripts/explore_scb.py
+
       - name: Fetch population from SCB
         run: python3 -u scripts/fetch_population.py
 
