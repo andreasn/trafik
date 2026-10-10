@@ -2,9 +2,15 @@
 
 A website for traffic data in Sweden.
 
-No build step is needed. The page loads `data/population.json`, which browsers
-block on pages opened straight from disk, so serve the folder to view it, for
-example with `python3 -m http.server`, then open http://localhost:8000.
+The front page shows the number of passenger cars in traffic in Sweden,
+1975–2025 in five-year intervals: a column chart of the total, a column chart of
+cars per 1,000 inhabitants (so growth isn't just population growth), and a table
+with the exact figures. Hover or tab to a column to see its values. The page is
+drawn by `cars.js` from `data/cars.json` and `data/population.json`.
+
+No build step is needed. Browsers block loading the data files on pages opened
+straight from disk, so serve the folder to view it, for example with
+`python3 -m http.server`, then open http://localhost:8000.
 
 ## Population data
 
@@ -18,8 +24,9 @@ needs only Python 3:
 python3 scripts/fetch_population.py
 ```
 
-You can also run it on GitHub: Actions → **Fetch population data** → Run
-workflow. The workflow commits the updated JSON file to the branch.
+You can also run it on GitHub: Actions → **Fetch SCB data** → Run workflow.
+The workflow fetches both population and cars and commits the updated JSON
+files to the branch.
 
 The file looks like this:
 
@@ -32,7 +39,25 @@ The file looks like this:
 }
 ```
 
-Read it from a script on the site:
+## Passenger car data
+
+`scripts/fetch_cars.py` downloads the number of passenger cars in traffic
+("personbilar i trafik") in all of Sweden from SCB and saves it to
+`data/cars.json`. SCB publishes this monthly from the vehicle register (table
+TAB1277, *Fordon enligt bilregistret efter fordonsslag och bestånd*, from
+1975), so the script takes the December figure for each year, which matches the
+31 December population. Like the population script it finds the table through
+SCB's table search instead of hard-coding it:
+
+```sh
+python3 scripts/fetch_cars.py
+```
+
+The file has the same layout, with `{ "year": 1975, "cars": 2760264 }` rows.
+
+## Using the data
+
+Read a data file from a script on the site:
 
 ```js
 const response = await fetch("data/population.json");

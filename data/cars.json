@@ -1,0 +1,52 @@
+{
+  "title": "Passenger cars in traffic in Sweden, end of December",
+  "source": "Statistics Sweden (SCB), table TAB1277: Fordon enligt bilregistret efter fordonsslag och bestånd. Månad 1975M01-2026M09",
+  "sourceUrl": "https://statistikdatabasen.scb.se/api/v2/tables/TAB1277/data",
+  "retrieved": "2026-10-10",
+  "data": [
+    {
+      "year": 1975,
+      "cars": 2760264
+    },
+    {
+      "year": 1980,
+      "cars": 2882956
+    },
+    {
+      "year": 1985,
+      "cars": 3151195
+    },
+    {
+      "year": 1990,
+      "cars": 3600518
+    },
+    {
+      "year": 1995,
+      "cars": 3630760
+    },
+    {
+      "year": 2000,
+      "cars": 3999268
+    },
+    {
+      "year": 2005,
+      "cars": 4156674
+    },
+    {
+      "year": 2010,
+      "cars": 4342782
+    },
+    {
+      "year": 2015,
+      "cars": 4678271
+    },
+    {
+      "year": 2020,
+      "cars": 4951235
+    },
+    {
+      "year": 2025,
+      "cars": 5042919
+    }
+  ]
+}
