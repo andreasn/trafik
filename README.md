@@ -2,7 +2,9 @@
 
 A website for traffic data in Sweden.
 
-Open `index.html` in a browser to view the site. No build step is needed.
+No build step is needed. The page loads `data/population.json`, which browsers
+block on pages opened straight from disk, so serve the folder to view it, for
+example with `python3 -m http.server`, then open http://localhost:8000.
 
 ## Population data
 
