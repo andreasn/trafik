@@ -67,7 +67,9 @@ each of Sweden's 290 municipalities for the same years and saves it to
 this series over several tables (TAB638 has 1968–2024 and TAB5557 has 2025),
 so the script combines the years from as few tables as possible, adding up
 marital status, age and so on where SCB has no total. It stops with an error if
-the municipalities don't add up to Sweden's population for the latest year.
+the municipalities are more than 0.01% away from Sweden's population for the
+latest year. (SCB counts a few people in Sweden but in no municipality: 9 in
+2025. The file's `sweden` field has the national totals.)
 SCB gives the figures for today's municipalities, so a municipality formed
 later (Knivsta in 2003, for example) has `null` for the years before it
 existed.
@@ -85,6 +87,7 @@ like this:
   "source": "Statistics Sweden (SCB), table ...",
   "retrieved": "2026-10-10",
   "years": [1975, 1980, ...],
+  "sweden": { "1975": 8208442, ..., "2025": 10605529 },
   "data": [
     {
       "code": "0114",

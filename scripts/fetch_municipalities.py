@@ -182,8 +182,11 @@ def check(national, municipalities):
     latest = YEARS[-1]
     if any(m["population"][latest] is None for m in municipalities):
         sys.exit(f"Some municipalities have no population for {latest}")
-    if sum(m["population"][latest] for m in municipalities) != national.get(latest):
-        sys.exit(f"The municipalities do not add up to Sweden's population in {latest}")
+    # SCB counts a handful of people in Sweden but in no municipality (9 in
+    # 2025), so allow a gap of up to 0.01%.
+    gap = abs(national.get(latest, 0) - sum(m["population"][latest] for m in municipalities))
+    if gap > national.get(latest, 0) / 10_000:
+        sys.exit(f"The municipalities are {gap:,} away from Sweden's population in {latest}")
 
 
 def main():
@@ -210,6 +213,9 @@ def main():
         ],
         "retrieved": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "years": [int(year) for year in YEARS],
+        # Sweden's total from the same tables; it can be a few people more
+        # than the sum of the municipalities.
+        "sweden": {year: national.get(year) for year in YEARS},
         "data": municipalities,
     }
 
