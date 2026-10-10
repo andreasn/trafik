@@ -8,9 +8,10 @@ population and cars per 1,000 inhabitants (so growth isn't just population
 growth). It is filled in by `cars.js` from `data/cars.json` and
 `data/population.json`.
 
-Below that, a table lists the population of every municipality for the same
-years, drawn by `municipalities.js` from `data/municipalities.json`. Type in the
-box to filter by municipality or county, and click a column heading to sort.
+Below that, you can pick any municipality (grouped by county) to see its
+population for the same years in a table like the national one. It is drawn by
+`municipalities.js` from `data/municipalities.json`. The address keeps the
+municipality code, so for example `#0180` opens Stockholm.
 
 No build step is needed. Browsers block loading the data files on pages opened
 straight from disk, so serve the folder to view it, for example with
