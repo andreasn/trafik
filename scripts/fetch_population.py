@@ -22,28 +22,54 @@ API_URL = "https://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/Bef
 YEARS = [str(year) for year in range(1975, 2026, 5)]
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "population.json"
 
-QUERY = {
-    "query": [
-        # "00" is the whole of Sweden. Age, sex and marital status are left
-        # out, so SCB returns totals across them.
-        {"code": "Region", "selection": {"filter": "item", "values": ["00"]}},
-        {"code": "ContentsCode", "selection": {"filter": "item", "values": ["BE0101N1"]}},
-        {"code": "Tid", "selection": {"filter": "item", "values": YEARS}},
-    ],
-    "response": {"format": "json"},
-}
+REGION = "00"  # The whole of Sweden.
+CONTENTS = "BE0101N1"  # Folkmängd (population).
 
 
-def fetch():
-    request = urllib.request.Request(
-        API_URL,
-        data=json.dumps(QUERY).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
+def request(data=None):
+    """GET the table's metadata, or POST a query when data is given."""
+    req = urllib.request.Request(API_URL)
+    if data is not None:
+        req.data = json.dumps(data).encode("utf-8")
+        req.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(req, timeout=30) as response:
         # SCB sends a UTF-8 byte order mark before the JSON.
         return json.loads(response.read().decode("utf-8-sig"))
+
+
+def build_query(metadata):
+    """Check the table offers what we need and build the data query."""
+    variables = {variable["code"]: variable for variable in metadata["variables"]}
+    print("Table variables:", ", ".join(variables))
+
+    for code, value in (("Region", REGION), ("ContentsCode", CONTENTS)):
+        if code not in variables or value not in variables[code]["values"]:
+            sys.exit(f"Table has no {code} value {value!r}")
+
+    available = set(variables["Tid"]["values"])
+    print(f"Years available: {min(available)}-{max(available)}")
+    missing = [year for year in YEARS if year not in available]
+    if missing:
+        sys.exit(f"SCB has no data yet for: {', '.join(missing)}")
+
+    # Age, sex and marital status are left out so SCB returns totals across
+    # them. That only works for variables SCB lets us leave out.
+    required = [
+        code
+        for code, variable in variables.items()
+        if code not in ("Region", "ContentsCode", "Tid") and not variable.get("elimination")
+    ]
+    if required:
+        sys.exit(f"Table requires a selection for: {', '.join(required)}")
+
+    return {
+        "query": [
+            {"code": "Region", "selection": {"filter": "item", "values": [REGION]}},
+            {"code": "ContentsCode", "selection": {"filter": "item", "values": [CONTENTS]}},
+            {"code": "Tid", "selection": {"filter": "item", "values": YEARS}},
+        ],
+        "response": {"format": "json"},
+    }
 
 
 def parse(result):
@@ -60,7 +86,7 @@ def main():
     output = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
 
     try:
-        rows = parse(fetch())
+        rows = parse(request(build_query(request())))
     except urllib.error.HTTPError as error:
         sys.exit(f"SCB returned HTTP {error.code}: {error.read().decode('utf-8', 'replace')}")
     except urllib.error.URLError as error:
