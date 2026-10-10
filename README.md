@@ -3,10 +3,10 @@
 A website for traffic data in Sweden.
 
 The front page shows the number of passenger cars in traffic in Sweden,
-1975–2025 in five-year intervals: a column chart of the total, a column chart of
-cars per 1,000 inhabitants (so growth isn't just population growth), and a table
-with the exact figures. Hover or tab to a column to see its values. The page is
-drawn by `cars.js` from `data/cars.json` and `data/population.json`.
+1975–2025 in five-year intervals: a short summary and a table of cars,
+population and cars per 1,000 inhabitants (so growth isn't just population
+growth). It is filled in by `cars.js` from `data/cars.json` and
+`data/population.json`.
 
 Below that, a table lists the population of every municipality for the same
 years, drawn by `municipalities.js` from `data/municipalities.json`. Type in the
