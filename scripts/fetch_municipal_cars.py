@@ -133,6 +133,10 @@ def main():
         sys.exit(f"Could not reach SCB: {error.reason}")
 
     national = values.pop(REGION)
+    # SCB gives 0 for a code in years it wasn't in use; no municipality has no cars.
+    for by_year in values.values():
+        for year, value in by_year.items():
+            by_year[year] = value or None
     merge_renamed(values, regions)
     municipalities = [
         {"code": code, "cars": {year: by_year.get(year) for year in YEARS}}
