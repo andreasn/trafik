@@ -9,8 +9,10 @@ growth). It is filled in by `cars.js` from `data/cars.json` and
 `data/population.json`.
 
 Below that, you can pick any municipality (grouped by county) to see its
-population for the same years in a table like the national one. It is drawn by
-`municipalities.js` from `data/municipalities.json`. The address keeps the
+passenger cars in traffic, population and cars per 1,000 inhabitants for the
+same years, in a table like the national one. It is drawn by
+`municipalities.js` from `data/municipalities.json` and
+`data/municipal_cars.json`. The address keeps the
 municipality code, so for example `#0180` opens Stockholm.
 
 No build step is needed. Browsers block loading the data files on pages opened
@@ -100,6 +102,23 @@ like this:
   ]
 }
 ```
+
+## Passenger cars per municipality
+
+`scripts/fetch_municipal_cars.py` downloads the number of passenger cars in
+traffic at the end of each year in every municipality and saves it to
+`data/municipal_cars.json`. SCB only has these figures per municipality from
+2002 (table TAB1278, *Fordon i trafik efter län och kommun samt fordonsslag*),
+so 1975–2000 are `null` and show as a dash on the site. It finds the table
+through SCB's table search like the other scripts:
+
+```sh
+python3 scripts/fetch_municipal_cars.py
+```
+
+The file has `years`, the national total in `sweden`, and one
+`{ "code": "0114", "cars": { "2005": ..., "2025": ... } }` entry per
+municipality, matching the codes in `data/municipalities.json`.
 
 ## Using the data
 
