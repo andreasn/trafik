@@ -8,8 +8,9 @@ cars per 1,000 inhabitants (so growth isn't just population growth), and a table
 with the exact figures. Hover or tab to a column to see its values. The page is
 drawn by `cars.js` from `data/cars.json` and `data/population.json`.
 
-Serve the site locally to view it (see the note at the end), for example with
-`python3 -m http.server`. No build step is needed.
+No build step is needed. Browsers block loading the data files on pages opened
+straight from disk, so serve the folder to view it, for example with
+`python3 -m http.server`, then open http://localhost:8000.
 
 ## Population data
 

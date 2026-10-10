@@ -156,7 +156,7 @@ async function load() {
     cells.forEach((text, i) => {
       const cell = document.createElement(i === 0 ? "th" : "td");
       if (i === 0) cell.scope = "row";
-      else cell.className = "num";
+      else cell.className = "number";
       cell.textContent = text;
       tr.append(cell);
     });
