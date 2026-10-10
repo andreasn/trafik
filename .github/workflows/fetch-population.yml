@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Probe municipal car tables (temporary)
+        run: python3 -u scripts/probe_municipal_cars.py
+
       - name: Fetch population from SCB
         run: python3 -u scripts/fetch_population.py
 
@@ -20,6 +23,9 @@ jobs:
 
       - name: Fetch municipality populations from SCB
         run: python3 -u scripts/fetch_municipalities.py
+
+      - name: Stop before committing (temporary)
+        run: exit 1
 
       - name: Commit updated data
         run: |
