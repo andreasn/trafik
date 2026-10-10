@@ -6,6 +6,7 @@
   <title>Traffic Data Sweden</title>
   <link rel="stylesheet" href="style.css">
   <script src="cars.js" defer></script>
+  <script src="municipalities.js" defer></script>
 </head>
 <body>
   <main>
@@ -39,6 +40,22 @@
       </table>
 
       <p id="cars-source" class="source"></p>
+    </section>
+
+    <section aria-labelledby="municipalities-heading">
+      <h2 id="municipalities-heading">Population by municipality, 1975–2025</h2>
+      <p class="lead">Population of each of Sweden's municipalities on 31 December. Click a column heading to sort.</p>
+      <label class="filter">
+        Find a municipality or county
+        <input type="search" id="municipality-filter" autocomplete="off">
+      </label>
+      <div class="scroll">
+        <table id="municipalities">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="source" id="municipality-source"></p>
     </section>
   </main>
   <div id="tooltip" class="tooltip" role="status" hidden></div>

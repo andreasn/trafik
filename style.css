@@ -176,3 +176,76 @@ tbody th {
     font-size: 0.9rem;
   }
 }
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.filter input {
+  max-width: 20rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+/* The municipality table has a column per year, so it scrolls sideways on narrow screens. */
+.scroll {
+  overflow-x: auto;
+}
+
+#municipalities th,
+#municipalities td {
+  padding: 0.4rem 0.6rem;
+  white-space: nowrap;
+}
+
+#municipalities th {
+  padding: 0;
+}
+
+/* Sort buttons fill the heading cell. */
+#municipalities th button {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: bold;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+#municipalities th[aria-sort="ascending"] button::after {
+  content: " ▲";
+}
+
+#municipalities th[aria-sort="descending"] button::after {
+  content: " ▼";
+}
+
+.missing {
+  opacity: 0.5;
+}
+
+/* Keep the municipality name in view while scrolling sideways. */
+#municipalities th:first-child,
+#municipalities td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+#municipalities td:first-child {
+  background: var(--bg);
+}
+
+#municipalities tbody tr:nth-child(even) td:first-child {
+  background: var(--row-alt);
+}
