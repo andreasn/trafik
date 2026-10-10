@@ -24,7 +24,7 @@ The file looks like this:
   "title": "Population of Sweden, 31 December",
   "source": "Statistics Sweden (SCB), table BE0101A/BefolkningNy",
   "retrieved": "2026-10-10",
-  "data": [{ "year": 1975, "population": 8208442 }, ...]
+  "data": [{ "year": 1975, "population": … }, ...]
 }
 ```
 
