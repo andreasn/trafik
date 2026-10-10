@@ -53,7 +53,7 @@ def find_tables(base):
 
 
 def build_query(metadata, needed):
-    """Value codes, years and region labels for a request, or None if the table doesn't fit."""
+    """Value codes, years and region labels for a request, or the reason the table doesn't fit."""
     dimensions = metadata["dimension"]
     time_code = metadata.get("role", {}).get("time", ["Tid"])[0]
     params = {}
@@ -65,25 +65,25 @@ def build_query(metadata, needed):
         if code == time_code:
             years = [year for year in needed if year in values]
             if not years:
-                return None
+                return f"no years in {', '.join(needed)}"
             params[f"valueCodes[{code}]"] = ",".join(years)
         elif code == "Region":
             municipalities = [key for key in values if MUNICIPALITY.match(key)]
             if len(municipalities) < 290 or REGION not in values:
-                return None
+                return f"{len(municipalities)} municipalities, national total {'present' if REGION in values else 'missing'}"
             regions = values
             params[f"valueCodes[{code}]"] = ",".join([REGION, *municipalities])
         elif code == "ContentsCode":
             matches = [key for key, label in values.items() if label.lower().startswith(SEARCH)]
             if not matches:
-                return None
+                return f"no {SEARCH!r} measure among {list(values.values())}"
             params[f"valueCodes[{code}]"] = matches[0]
         elif not dimension.get("extension", {}).get("elimination"):
             # Age, sex and so on must be leavable out to get totals.
-            return None
+            return f"{code} cannot be left out"
 
     if regions is None:
-        return None
+        return "no Region dimension"
     return params, years, regions
 
 
@@ -130,8 +130,9 @@ def fetch():
         url = f"{base}/tables/{table['id']}"
         metadata = get(f"{url}/metadata", {"lang": "sv"})
         query = build_query(metadata, YEARS)
-        print(f"  {table['id']}: {table['label']}{'' if query else ' - skipped'}")
-        if query:
+        skipped = f" - skipped: {query}" if isinstance(query, str) else ""
+        print(f"  {table['id']}: {table['label']}{skipped}")
+        if not skipped:
             candidates.append((table, url, metadata, query[1]))
             if len(query[1]) == len(YEARS):
                 break  # This table has every year.

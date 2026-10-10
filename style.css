@@ -26,7 +26,7 @@ body {
 }
 
 main {
-  max-width: 40rem;
+  max-width: 64rem;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -57,7 +57,74 @@ tbody tr:nth-child(even) {
   font-variant-numeric: tabular-nums;
 }
 
+/* The national table and text keep a readable width. */
+main > p,
+main > table {
+  max-width: 40rem;
+}
+
 .source {
   font-size: 0.875rem;
   opacity: 0.75;
+}
+
+h2 {
+  margin-top: 2.5rem;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.filter input {
+  max-width: 20rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+/* The municipality table has a column per year, so it scrolls sideways on narrow screens. */
+.scroll {
+  overflow-x: auto;
+}
+
+#municipalities th,
+#municipalities td {
+  padding: 0.4rem 0.6rem;
+  white-space: nowrap;
+}
+
+#municipalities th {
+  padding: 0;
+}
+
+/* Sort buttons fill the heading cell. */
+#municipalities th button {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: bold;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+#municipalities th[aria-sort="ascending"] button::after {
+  content: " ▲";
+}
+
+#municipalities th[aria-sort="descending"] button::after {
+  content: " ▼";
+}
+
+.missing {
+  opacity: 0.5;
 }
