@@ -43,3 +43,30 @@ data.forEach(({ year, population }) => console.log(year, population));
 Browsers block `fetch` on pages opened straight from disk (`file://`), so
 serve the site locally when testing, for example with
 `python3 -m http.server`.
+
+## Population density by municipality
+
+`scripts/fetch_density.py` downloads the population density (inhabitants per
+km² of land) of all 290 municipalities for the latest year SCB has published,
+with each municipality's population and land area, and saves it to
+`data/municipality-density.json`. Like the population script it searches SCB's
+tables, here for "befolkningstäthet", so it keeps working when SCB replaces a
+table:
+
+```sh
+python3 scripts/fetch_density.py
+```
+
+On GitHub: Actions → **Fetch municipality density data** → Run workflow.
+
+The file looks like this (`code` is SCB's four-digit municipality code):
+
+```json
+{
+  "title": "Population density of Swedish municipalities, inhabitants per km² of land",
+  "source": "Statistics Sweden (SCB), table ...",
+  "retrieved": "2026-10-10",
+  "year": 2025,
+  "data": [{ "code": "0114", "name": "Upplands Väsby", "density": 1000.0, "population": 50000, "landArea": 75.0 }, ...]
+}
+```

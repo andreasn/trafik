@@ -1,0 +1,24 @@
+name: Fetch municipality density data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fetch municipality population density from SCB
+        run: python3 -u scripts/fetch_density.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add data/municipality-density.json
+          git diff --cached --quiet || git commit -m "Update municipality density data from SCB"
+          git push
