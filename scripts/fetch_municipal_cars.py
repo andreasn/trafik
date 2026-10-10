@@ -24,7 +24,7 @@ from pathlib import Path
 from fetch_municipalities import MUNICIPALITY, parse
 from fetch_population import REGION, YEARS, find_api, get
 
-SEARCH = "i trafik efter län och kommun"
+SEARCHES = ["fordon i trafik", "personbilar i trafik"]
 # Values wanted in the table's other dimensions, matched on SCB's Swedish labels.
 WANTED = {"personbilar", "totalt"}
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "municipal_cars.json"
@@ -66,11 +66,15 @@ def build_query(metadata):
 def fetch():
     base = find_api()
     print(f"Using {base}")
-    print(f"Tables matching {SEARCH!r}:")
-    result = get(f"{base}/tables", {"lang": "sv", "query": SEARCH, "pageSize": 100})
+    tables = {}
+    for search in SEARCHES:
+        result = get(f"{base}/tables", {"lang": "sv", "query": search, "pageSize": 100})
+        for table in result["tables"]:
+            tables.setdefault(table["id"], table)
+    print(f"Tables matching {' or '.join(map(repr, SEARCHES))}:")
 
     best = None
-    for table in result["tables"]:
+    for table in tables.values():
         label = table["label"].lower()
         if table.get("discontinued") or not ("personbilar" in label or "fordon" in label):
             continue
