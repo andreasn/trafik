@@ -37,6 +37,7 @@ def build_query(metadata):
     time_code = metadata.get("role", {}).get("time", ["Tid"])[0]
     params = {}
     years = []
+    regions = {}
 
     for code in metadata["id"]:
         values = dimensions[code]["category"]["label"]
@@ -50,6 +51,7 @@ def build_query(metadata):
             if len(municipalities) < 290 or REGION not in values:
                 return f"{len(municipalities)} municipalities"
             params[f"valueCodes[{code}]"] = ",".join([REGION, *municipalities])
+            regions = values
         else:
             matches = [key for key, label in values.items() if label.lower() in WANTED]
             if matches:
@@ -61,7 +63,7 @@ def build_query(metadata):
 
     if not any(key.startswith("valueCodes[Region]") for key in params):
         return "no Region dimension"
-    return params, years
+    return params, years, regions
 
 
 def fetch():
@@ -90,23 +92,48 @@ def fetch():
 
     if best is None:
         sys.exit("No SCB table has passenger cars in traffic for every municipality")
-    table, url, (params, years) = best
+    table, url, (params, years, regions) = best
     print(f"Fetching {', '.join(years)} from {table['id']}")
     dataset = get(f"{url}/data", {"lang": "sv", "outputFormat": "json-stat2", **params})
-    return table, f"{url}/data", parse(dataset)
+    return table, f"{url}/data", regions, parse(dataset)
+
+
+def merge_renamed(values, regions):
+    """Fold old codes into the current code of the same municipality.
+
+    SCB lists a municipality that changed county under both codes, e.g. Heby
+    as 1917 (Västmanland) until 2006 and 0331 (Uppsala) after. Keep the code
+    with the latest figure and fill its missing years from the other.
+    """
+    by_name = {}
+    for code in values:
+        if MUNICIPALITY.match(code):
+            by_name.setdefault(regions.get(code, code).removeprefix(code).strip(), []).append(code)
+    for name, codes in by_name.items():
+        if len(codes) < 2:
+            continue
+        current = max(codes, key=lambda code: max((y for y, v in values[code].items() if v is not None), default=""))
+        for old in codes:
+            if old == current:
+                continue
+            for year, value in values.pop(old).items():
+                if values[current].get(year) is None:
+                    values[current][year] = value
+            print(f"Merged {name} {old} into {current}")
 
 
 def main():
     output = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
 
     try:
-        table, source_url, values = fetch()
+        table, source_url, regions, values = fetch()
     except urllib.error.HTTPError as error:
         sys.exit(f"SCB returned HTTP {error.code} for {error.url}: {error.read().decode('utf-8', 'replace')}")
     except urllib.error.URLError as error:
         sys.exit(f"Could not reach SCB: {error.reason}")
 
     national = values.pop(REGION)
+    merge_renamed(values, regions)
     municipalities = [
         {"code": code, "cars": {year: by_year.get(year) for year in YEARS}}
         for code, by_year in sorted(values.items())
