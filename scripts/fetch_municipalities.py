@@ -28,6 +28,7 @@ from pathlib import Path
 from fetch_population import REGION, SEARCH, YEARS, find_api, get
 
 MUNICIPALITY = re.compile(r"^\d{4}$")  # Municipality codes have four digits, counties two.
+TOTAL = re.compile(r"^(tot|totalt|total|samtliga|alla)\b", re.IGNORECASE)
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "municipalities.json"
 
 
@@ -79,8 +80,10 @@ def build_query(metadata, needed):
                 return f"no {SEARCH!r} measure among {list(values.values())}"
             params[f"valueCodes[{code}]"] = matches[0]
         elif not dimension.get("extension", {}).get("elimination"):
-            # Age, sex and so on must be leavable out to get totals.
-            return f"{code} cannot be left out"
+            # Age, sex and so on: take the total if there is one, otherwise
+            # every value, which parse adds up.
+            totals = [key for key, label in values.items() if TOTAL.match(label) or TOTAL.match(key)]
+            params[f"valueCodes[{code}]"] = totals[0] if totals else ",".join(values)
 
     if regions is None:
         return "no Region dimension"
@@ -93,29 +96,29 @@ def name(label, code):
 
 
 def parse(dataset):
-    """{region: {year: population or None}} from a json-stat2 dataset."""
-    codes = dataset["id"]
-    sizes = dict(zip(codes, dataset["size"]))
+    """{region: {year: population or None}} from a json-stat2 dataset, summed over other dimensions."""
+    codes, sizes = dataset["id"], dataset["size"]
     time_code = dataset.get("role", {}).get("time", ["Tid"])[0]
-    if any(size != 1 for code, size in sizes.items() if code not in (time_code, "Region")):
-        sys.exit(f"Expected one value per region and year, got dimensions {codes} sized {dataset['size']}")
 
     def ordered(code):
         index = dataset["dimension"][code]["category"]["index"]
         return sorted(index, key=index.get) if isinstance(index, dict) else index
 
-    # json-stat2 values are in row-major order over the dimensions; only
-    # Region and time have more than one value, so walk those two.
-    region_order, years = ordered("Region"), ordered(time_code)
-    region_first = codes.index("Region") < codes.index(time_code)
+    # json-stat2 values are in row-major order over the dimensions.
+    strides = [1] * len(codes)
+    for i in range(len(codes) - 2, -1, -1):
+        strides[i] = strides[i + 1] * sizes[i + 1]
+    r, t = codes.index("Region"), codes.index(time_code)
+    regions, years = ordered("Region"), ordered(time_code)
+
     table = {}
     for i, value in enumerate(dataset["value"]):
-        if region_first:
-            region, year = region_order[i // len(years)], years[i % len(years)]
+        cell = table.setdefault(regions[i // strides[r] % sizes[r]], {})
+        year = years[i // strides[t] % sizes[t]]
+        if value is None:
+            cell.setdefault(year, None)
         else:
-            year, region = years[i // len(region_order)], region_order[i % len(region_order)]
-        table.setdefault(region, {})[year] = None if value is None else int(value)
-
+            cell[year] = (cell.get(year) or 0) + int(value)
     return table
 
 
