@@ -33,19 +33,21 @@
     </section>
 
     <section aria-labelledby="municipalities-heading">
-      <h2 id="municipalities-heading">Population by municipality, 1975–2025</h2>
-      <p class="lead">Choose one of Sweden's 290 municipalities to see its population on 31 December.</p>
+      <h2 id="municipalities-heading">Cars and population by municipality, 1975–2025</h2>
+      <p class="lead">Choose one of Sweden's 290 municipalities to see its passenger cars in traffic and population.</p>
       <label class="picker">
         Municipality
         <select id="municipality-select"></select>
       </label>
 
       <table id="municipality-table">
-        <caption id="municipality-caption">Population, five-year intervals</caption>
+        <caption id="municipality-caption">Passenger cars and population, five-year intervals</caption>
         <thead>
           <tr>
             <th scope="col">Year</th>
+            <th scope="col" class="number">Cars in traffic</th>
             <th scope="col" class="number">Population</th>
+            <th scope="col" class="number">Cars per 1,000</th>
           </tr>
         </thead>
         <tbody></tbody>
