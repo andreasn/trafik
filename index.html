@@ -5,25 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Traffic Data Sweden</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
   <main>
     <h1>Traffic Data Sweden</h1>
-    <p>Traffic data in Sweden, 2010–2025, in five-year intervals.</p>
+    <p>Traffic data in Sweden, 1975–2025, in five-year intervals.</p>
 
     <table>
       <thead>
         <tr>
           <th scope="col">Year</th>
+          <th scope="col" class="number">Population</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>2010</td></tr>
-        <tr><td>2015</td></tr>
-        <tr><td>2020</td></tr>
-        <tr><td>2025</td></tr>
+        <tr><td>1975</td><td class="number" data-year="1975">–</td></tr>
+        <tr><td>1980</td><td class="number" data-year="1980">–</td></tr>
+        <tr><td>1985</td><td class="number" data-year="1985">–</td></tr>
+        <tr><td>1990</td><td class="number" data-year="1990">–</td></tr>
+        <tr><td>1995</td><td class="number" data-year="1995">–</td></tr>
+        <tr><td>2000</td><td class="number" data-year="2000">–</td></tr>
+        <tr><td>2005</td><td class="number" data-year="2005">–</td></tr>
+        <tr><td>2010</td><td class="number" data-year="2010">–</td></tr>
+        <tr><td>2015</td><td class="number" data-year="2015">–</td></tr>
+        <tr><td>2020</td><td class="number" data-year="2020">–</td></tr>
+        <tr><td>2025</td><td class="number" data-year="2025">–</td></tr>
       </tbody>
     </table>
+    <p class="source" id="population-source"></p>
   </main>
 </body>
 </html>
