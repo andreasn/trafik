@@ -8,7 +8,9 @@ Open `index.html` in a browser to view the site. No build step is needed.
 
 `scripts/fetch_population.py` downloads Sweden's population (31 December) from
 Statistics Sweden (SCB) for 1975–2025 in five-year steps and saves it to
-`data/population.json`. It needs only Python 3:
+`data/population.json`. It uses SCB's PxWebApi 2 and searches SCB's tables for
+one that covers every year, so it keeps working when SCB replaces a table. It
+needs only Python 3:
 
 ```sh
 python3 scripts/fetch_population.py
@@ -22,9 +24,9 @@ The file looks like this:
 ```json
 {
   "title": "Population of Sweden, 31 December",
-  "source": "Statistics Sweden (SCB), table BE0101A/BefolkningNy",
+  "source": "Statistics Sweden (SCB), table TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
   "retrieved": "2026-10-10",
-  "data": [{ "year": 1975, "population": … }, ...]
+  "data": [{ "year": 1975, "population": 8208442 }, ...]
 }
 ```
 
