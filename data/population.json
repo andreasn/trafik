@@ -1,0 +1,52 @@
+{
+  "title": "Population of Sweden, 31 December",
+  "source": "Statistics Sweden (SCB), table TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
+  "sourceUrl": "https://statistikdatabasen.scb.se/api/v2/tables/TAB4365/data",
+  "retrieved": "2026-10-10",
+  "data": [
+    {
+      "year": 1975,
+      "population": 8208442
+    },
+    {
+      "year": 1980,
+      "population": 8317937
+    },
+    {
+      "year": 1985,
+      "population": 8358139
+    },
+    {
+      "year": 1990,
+      "population": 8590630
+    },
+    {
+      "year": 1995,
+      "population": 8837496
+    },
+    {
+      "year": 2000,
+      "population": 8882792
+    },
+    {
+      "year": 2005,
+      "population": 9047752
+    },
+    {
+      "year": 2010,
+      "population": 9415570
+    },
+    {
+      "year": 2015,
+      "population": 9851017
+    },
+    {
+      "year": 2020,
+      "population": 10379295
+    },
+    {
+      "year": 2025,
+      "population": 10605529
+    }
+  ]
+}
