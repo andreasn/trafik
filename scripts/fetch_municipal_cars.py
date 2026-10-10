@@ -24,7 +24,8 @@ from pathlib import Path
 from fetch_municipalities import MUNICIPALITY, parse
 from fetch_population import REGION, YEARS, find_api, get
 
-SEARCHES = ["fordon i trafik", "personbilar i trafik"]
+# SCB's search is picky about phrases; these together found TAB1278 and TAB3276.
+SEARCHES = ["fordon i trafik", "personbilar i trafik", "bilregistret", "fordon region", "personbilar region"]
 # Values wanted in the table's other dimensions, matched on SCB's Swedish labels.
 WANTED = {"personbilar", "totalt"}
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "municipal_cars.json"
@@ -69,9 +70,10 @@ def fetch():
     tables = {}
     for search in SEARCHES:
         result = get(f"{base}/tables", {"lang": "sv", "query": search, "pageSize": 100})
+        print(f"Search {search!r}: {len(result['tables'])} tables")
         for table in result["tables"]:
             tables.setdefault(table["id"], table)
-    print(f"Tables matching {' or '.join(map(repr, SEARCHES))}:")
+    print("Vehicle tables:")
 
     best = None
     for table in tables.values():
