@@ -32,7 +32,45 @@ The file looks like this:
 }
 ```
 
-Read it from a script on the site:
+## Population per municipality
+
+`scripts/fetch_municipalities.py` downloads the population (31 December) of
+each of Sweden's 290 municipalities for the same years and saves it to
+`data/municipalities.json`. It searches SCB's tables the same way. SCB splits
+this series over several tables (TAB638 has 1968–2024 and TAB5557 has 2025),
+so the script combines the years from as few tables as possible. It stops with an error if the municipalities
+don't add up to Sweden's population for the latest year. SCB gives the figures
+for today's municipalities, so a municipality formed later (Knivsta in 2003,
+for example) has `null` for the years before it existed.
+
+```sh
+python3 scripts/fetch_municipalities.py
+```
+
+The **Fetch population data** workflow runs this script too. The file looks
+like this:
+
+```json
+{
+  "title": "Population of Sweden's municipalities, 31 December",
+  "source": "Statistics Sweden (SCB), table ...",
+  "retrieved": "2026-10-10",
+  "years": [1975, 1980, ...],
+  "data": [
+    {
+      "code": "0114",
+      "name": "Upplands Väsby",
+      "county": "Stockholms län",
+      "population": { "1975": 30000, ..., "2025": 50000 }
+    },
+    ...
+  ]
+}
+```
+
+## Using the data
+
+Read the national figures from a script on the site:
 
 ```js
 const response = await fetch("data/population.json");
