@@ -32,11 +32,18 @@ SEARCH = "folkmängd"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "population.json"
 
 
-def get(url, params):
+def get(url, params, attempts=3):
     query = urllib.parse.urlencode(params, safe="[],")
-    with urllib.request.urlopen(f"{url}?{query}", timeout=30) as response:
-        # SCB may send a UTF-8 byte order mark before the JSON.
-        return json.loads(response.read().decode("utf-8-sig"))
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(f"{url}?{query}", timeout=30) as response:
+                # SCB may send a UTF-8 byte order mark before the JSON.
+                return json.loads(response.read().decode("utf-8-sig"))
+        except TimeoutError:
+            # SCB sometimes stalls on a single request; try it again.
+            if attempt == attempts:
+                raise
+            print(f"{url} timed out, retrying")
 
 
 def find_api():

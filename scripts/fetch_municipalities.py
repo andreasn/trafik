@@ -138,8 +138,8 @@ def fetch():
         print(f"  {table['id']}: {table['label']}{skipped}")
         if not skipped:
             candidates.append((table, url, metadata, query[1]))
-            if len(query[1]) == len(YEARS):
-                break  # This table has every year.
+            if {year for *_, years in candidates for year in years} == set(YEARS):
+                break  # The tables found so far have every year.
 
     while needed:
         # Take the table that has the most of the years still needed; the
