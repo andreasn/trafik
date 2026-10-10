@@ -9,7 +9,8 @@ over several tables (TAB638 has 1968-2024 and TAB5557 has 2025, for
 example), so the years are combined from as few tables as possible.
 
 SCB gives the figures for today's municipalities. A municipality formed
-after a given year (Knivsta in 2003, for example) has null for that year.
+after a given year (Knivsta in 2003, for example) has null for that year;
+SCB itself gives 0 there.
 
 Usage:
     python3 scripts/fetch_municipalities.py [output-path]
@@ -163,7 +164,8 @@ def fetch():
             "code": code,
             "name": name(labels[code], code),
             "county": counties.get(code[:2]),
-            "population": {year: values[code].get(year) for year in YEARS},
+            # SCB gives 0 for years before a municipality existed.
+            "population": {year: values[code].get(year) or None for year in YEARS},
         }
         for code in sorted(values)
         if MUNICIPALITY.match(code)
