@@ -17,16 +17,19 @@
       <h2 id="cars-heading">Cars, population and distance driven in Sweden, 1975–2025</h2>
       <p id="cars-summary" class="lead">Loading data from Statistics Sweden and Trafikanalys…</p>
 
+      <fieldset class="column-toggles" data-table="cars-table">
+        <legend>Show columns</legend>
+      </fieldset>
       <p class="caption" id="cars-caption">Passenger cars, population and distance driven, five-year intervals</p>
       <div class="scroll">
         <table id="cars-table" aria-labelledby="cars-caption">
           <thead>
             <tr>
               <th scope="col">Year</th>
-              <th scope="col" class="number">Cars in traffic</th>
-              <th scope="col" class="number">Population</th>
+              <th scope="col" class="number" data-toggle>Cars in traffic</th>
+              <th scope="col" class="number" data-toggle>Population</th>
               <th scope="col" class="number">Cars per 1,000</th>
-              <th scope="col" class="number">Vehicle-km (billions)</th>
+              <th scope="col" class="number" data-toggle>Vehicle-km (billions)</th>
               <th scope="col" class="number">Km per inhabitant</th>
             </tr>
           </thead>
@@ -55,17 +58,20 @@
         </label>
       </div>
 
+      <fieldset class="column-toggles" data-table="municipality-table">
+        <legend>Show columns</legend>
+      </fieldset>
       <p class="caption" id="municipality-caption">Passenger cars, population and distance driven, five-year intervals</p>
       <div class="scroll">
         <table id="municipality-table" aria-labelledby="municipality-caption">
           <thead>
             <tr>
               <th scope="col">Year</th>
-              <th scope="col" class="number">Cars in traffic</th>
-              <th scope="col" class="number">Population</th>
+              <th scope="col" class="number" data-toggle>Cars in traffic</th>
+              <th scope="col" class="number" data-toggle>Population</th>
               <th scope="col" class="number">Cars per 1,000</th>
               <th scope="col" class="number">Cars per 1,000 vs Sweden</th>
-              <th scope="col" class="number">Car-km (millions)</th>
+              <th scope="col" class="number" data-toggle>Car-km (millions)</th>
               <th scope="col" class="number">Km per inhabitant</th>
               <th scope="col" class="number">Km per inhabitant vs Sweden</th>
             </tr>
