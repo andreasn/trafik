@@ -14,7 +14,6 @@ async function loadMunicipalities() {
   const heading = document.getElementById("municipalities-heading");
   const search = document.getElementById("municipality-search");
   const names = document.getElementById("municipality-names");
-  const caption = document.getElementById("municipality-caption");
   const body = document.querySelector("#municipality-table tbody");
   const source = document.getElementById("municipality-source");
   const number = new Intl.NumberFormat("en-GB");
@@ -209,8 +208,9 @@ async function loadMunicipalities() {
     if (code === SWEDEN) return;
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
-    heading.textContent = `Cars, population and distance driven in ${municipality.name}, 1975–2025`;
-    caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and distance driven, five-year intervals`;
+    const place = municipality.county ? `${municipality.name}, ${municipality.county}` : municipality.name;
+    // The word joiners (\u2060) keep the year range on one line.
+    heading.textContent = `Cars, population and distance driven in ${place}, 1975\u2060–\u20602025`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
       const counted = carCounts[year] ?? ownershipCars(code, year);

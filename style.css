@@ -67,13 +67,6 @@ h2 {
   margin-top: 0;
 }
 
-caption,
-.caption {
-  font-weight: 600;
-  text-align: left;
-  margin-bottom: 0.5rem;
-}
-
 .number {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -141,7 +134,7 @@ tbody th {
 }
 
 /* The national table has six columns: headings wrap and, on narrow screens,
-   the table scrolls sideways with the year and caption kept in view. */
+   the table scrolls sideways with the year kept in view. */
 .scroll {
   overflow-x: auto;
 }
