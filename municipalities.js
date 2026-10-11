@@ -18,12 +18,14 @@ async function loadMunicipalities() {
   let population;
   let cars;
   let distance;
+  let swedenCars;
   try {
     // The page still works without the car and distance figures.
-    [population, cars, distance] = await Promise.all([
+    [population, cars, distance, swedenCars] = await Promise.all([
       load("data/municipalities.json"),
       load("data/municipal_cars.json").catch(() => null),
       load("data/car_distance.json").catch(() => null),
+      load("data/cars.json").catch(() => null),
     ]);
   } catch (error) {
     source.textContent = `Could not load municipality data (${error.message}).`;
@@ -34,23 +36,47 @@ async function loadMunicipalities() {
   const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // Trafikanalys doesn't publish distance driven per municipality, so it is
-  // estimated by sharing out Sweden's passenger-car distance. Where the
-  // Körsträckor report has county averages per car (2025), each
-  // municipality's share is its cars weighted by its county's average;
-  // otherwise its plain share of Sweden's cars. Either way the estimates add
-  // up to Sweden's total.
+  // estimated by sharing out Sweden's passenger-car distance; the estimates
+  // add up to Sweden's total. A municipality's share is:
+  // - its passenger cars, weighted by its county's average distance per car
+  //   where the Körsträckor report has one (2025);
+  // - otherwise its passenger cars;
+  // - before SCB's municipal car counts (2002), its population times its
+  //   cars per inhabitant in the first year with counts (2005).
+  const carYears = [...new Set([...carsByCode.values()].flatMap((counts) => Object.keys(counts)))].sort();
+  const baseYear = carYears.find((year) => [...carsByCode.values()].some((counts) => counts[year]));
+  const carsPerPerson = (code) => {
+    const vehicles = carsByCode.get(code)?.[baseYear];
+    const people = byCode.get(code)?.population[baseYear];
+    return vehicles && people ? vehicles / people : 0;
+  };
   const weight = (code, year) => {
-    const vehicles = carsByCode.get(code)?.[year] ?? 0;
+    const vehicles = carsByCode.get(code)?.[year];
+    if (vehicles == null) return (byCode.get(code)?.population[year] ?? 0) * carsPerPerson(code);
     const countyAverage = distance?.countyKmPerCar[year]?.kmPerCar[code.slice(0, 2)];
     return countyAverage ? vehicles * countyAverage : vehicles;
   };
   const totalWeight = {};
-  for (const [code, counts] of carsByCode) {
-    for (const year of Object.keys(counts)) totalWeight[year] = (totalWeight[year] ?? 0) + weight(code, year);
+  for (const year of population.years.map(String)) {
+    totalWeight[year] = population.data.reduce((sum, m) => sum + weight(m.code, year), 0);
   }
+
+  // Sweden's passenger-car distance from Trafikanalys starts in 1990; earlier
+  // years are Sweden's passenger cars times the vehicle-km per car of the
+  // first year with a figure, as in the national table.
+  const swedenCarKm = Object.fromEntries(
+    Object.entries(distance?.swedenCarKmMillions ?? {}).map(([year, millions]) => [year, millions * 1e6]),
+  );
+  const firstKmYear = Object.keys(swedenCarKm).sort()[0];
+  const nationalCars = new Map((swedenCars?.data ?? []).map((row) => [String(row.year), row.cars]));
+  const kmPerCar = firstKmYear && nationalCars.get(firstKmYear) ? swedenCarKm[firstKmYear] / nationalCars.get(firstKmYear) : null;
+  for (const [year, count] of nationalCars) {
+    if (!(year in swedenCarKm) && kmPerCar && year < firstKmYear) swedenCarKm[year] = count * kmPerCar;
+  }
+
   function estimatedKm(code, year) {
-    const swedenKm = (distance?.swedenCarKmMillions[year] ?? 0) * 1e6;
-    const share = weight(code, year);
+    const swedenKm = swedenCarKm[year];
+    const share = weight(code, String(year));
     return swedenKm && share && totalWeight[year] ? (swedenKm * share) / totalWeight[year] : null;
   }
   const countyYears = Object.keys(distance?.countyKmPerCar ?? {});
@@ -62,7 +88,12 @@ async function loadMunicipalities() {
           ? `Sweden's passenger-car distance is shared out by the municipality's passenger cars, weighted for ${countyYears.join(", ")} ` +
             "by its county's average distance per car and for other years unweighted. "
           : "Sweden's passenger-car distance is shared out by the municipality's share of Sweden's cars. "
-        )
+        ) +
+        (baseYear
+          ? `Before ${baseYear}, when SCB has no municipal car counts, the share is the municipality's population ` +
+            `times its cars per inhabitant in ${baseYear}` +
+            (firstKmYear ? `, and before ${firstKmYear} Sweden's passenger-car distance is itself estimated from the number of cars. ` : ". ")
+          : "")
       : "") +
     "A dash means there is no figure: SCB has cars per municipality from 2002, and some " +
     "municipalities were formed after 1975. Cars in traffic at the end of the year; population on 31 December. " +
