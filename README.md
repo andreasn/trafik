@@ -5,11 +5,12 @@ A website for traffic data in Sweden.
 The front page shows one table for Sweden as a whole, 1975–2025 in five-year
 intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
 growth isn't just population growth), and the distance driven on Swedish roads
-in billions of vehicle-kilometres and in Swedish mil (10 km) per inhabitant, as
-Swedish statistics usually give averages. Trafikanalys's distance series starts
-in 1990, so 1975–1985 come from SIKA's historical series (see below). It is filled in by `cars.js` from
-`data/cars.json`, `data/population.json`, `data/traffic.json` and
-`data/historical_traffic.json`.
+in Swedish mil (10 km): millions of vehicle-mil in total and mil per
+inhabitant. (Trafikanalys gives the total in km and averages in mil; the site
+uses mil throughout.) Trafikanalys's distance series starts in 1990, so
+1975–1985 come from SIKA's historical series (see below). It is filled in by
+`cars.js` from `data/cars.json`, `data/population.json`, `data/traffic.json`
+and `data/historical_traffic.json`.
 
 Below that, you can pick any municipality (grouped by county, or by typing
 part of its name in the search box, accents optional) to see its
@@ -206,8 +207,8 @@ which raises the figures for municipalities with many head offices.
 python3 scripts/fetch_kolada_distance.py
 ```
 
-The site shows car-km as the km per inhabitant times the population, and the
-per-inhabitant figure in mil, as Kolada publishes it.
+The site shows the distance in mil, as Kolada publishes it: per inhabitant, and
+in total as that times the population.
 
 ### Estimates for the other years
 

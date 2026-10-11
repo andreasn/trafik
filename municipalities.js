@@ -172,7 +172,7 @@ async function loadMunicipalities() {
       : "") +
     "The “vs Sweden” columns compare the municipality with Sweden as a whole: cars per inhabitant with " +
     "Sweden's passenger cars per inhabitant, and distance per inhabitant with Sweden's passenger-car distance per " +
-    "inhabitant; +12% means 12% above Sweden's average. Distance per inhabitant is in Swedish mil (1 mil = 10 km). " +
+    "inhabitant; +12% means 12% above Sweden's average. Distances are in Swedish mil (1 mil = 10 km). " +
     "A dash means there is no figure: some municipalities were formed after 1975. " +
     "Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
@@ -209,7 +209,7 @@ async function loadMunicipalities() {
       const kmPerInhabitant = officialKm.get(code)?.[year];
       const kmOfficial = kmPerInhabitant != null && people != null;
       const km = kmOfficial ? kmPerInhabitant * people : estimatedKm(code, year);
-      // Per inhabitant in Swedish mil (10 km), as Trafikanalys and Kolada publish it.
+      // In Swedish mil (10 km), as Trafikanalys and Kolada publish averages.
       const milPerPerson = kmOfficial ? Math.round(kmPerInhabitant / 10) : km && people ? Math.round(km / people / 10) : null;
       const tr = document.createElement("tr");
       const yearCell = document.createElement("th");
@@ -222,7 +222,7 @@ async function loadMunicipalities() {
         { value: people },
         { value: perThousand, estimate: carsEstimated },
         { value: versus(people && vehicles != null ? vehicles / people : null, swedenCarsPerPerson(year)), estimate: carsEstimated },
-        { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: !kmOfficial },
+        { value: km == null ? null : oneDecimal.format(km / 1e7), estimate: !kmOfficial },
         { value: milPerPerson, estimate: !kmOfficial },
         { value: versus(km != null && people ? km / people : null, swedenKmPerPerson(year)), estimate: !kmOfficial },
       ];
