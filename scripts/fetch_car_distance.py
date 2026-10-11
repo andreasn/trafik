@@ -8,9 +8,11 @@ estimates it from two official sources, saved together in one file:
   Trafikanalys's open API (product t04010 "Trafikarbete", fordonsslag 10,
   millions of vehicle-km).
 - The average distance per passenger car in each county of registration,
-  from table RS1 in Trafikanalys's yearly Körsträckor workbook. Only the
-  newest workbooks are linked from trafa.se, so this covers the years in
-  1975-2025 that have one (2025 at the time of writing).
+  from table RS1 in Trafikanalys's yearly Körsträckor workbook. trafa.se
+  links only the newest workbooks; older ones that are still there are
+  listed in OLDER_WORKBOOKS. Together they cover 2015, 2020 and 2025 of
+  1975-2025 at the time of writing; no workbook was found for 2010 or
+  earlier.
 
 municipalities.js then uses the county average where there is one and the
 municipality's share of Sweden's cars otherwise.
@@ -37,6 +39,12 @@ from pathlib import Path
 API_URL = "https://api.trafa.se/api/data"
 QUERY = "t04010|ar|fslag:10|fordonkm"  # Passenger cars, millions of vehicle-km.
 PAGE = "https://www.trafa.se/vagtrafik/korstrackor/"
+# Workbooks no longer linked from PAGE but still on trafa.se. A missing one is
+# reported and skipped.
+OLDER_WORKBOOKS = [
+    "https://www.trafa.se/globalassets/statistik/vagtrafik/korstrackor/2020/korstrackor-2020.xlsx",
+    "https://www.trafa.se/globalassets/statistik/vagtrafik/korstrackor/korstrackor-2015.xlsx",
+]
 SHEET = "RS Tab 1"
 YEARS = [str(year) for year in range(1975, 2026, 5)]
 # Table RS1 names counties without their codes.
@@ -120,15 +128,27 @@ def read_sheet(workbook, name):
 
 
 def county_averages(rows):
-    """{county code: km per passenger car} and the year from table RS1."""
-    year = next((m.group(1) for row in rows[:3] for c in row if isinstance(c, str)
-                 for m in [re.search(r"År (\d{4})", c)] if m), None)
+    """{county code: km per passenger car} and the year from table RS1.
+
+    The layout varies between years: 2020 and later split passenger cars
+    into owner columns with a "Totalt" under them, 2015 has a single
+    passenger-car column.
+    """
+    year = next((m.group(1) for row in rows[:6] for c in row if isinstance(c, str)
+                 for m in [re.search(r"år (\d{4})", c, re.I)] if m), None)
     header = next(i for i, row in enumerate(rows) if "Personbilar" in [str(c).strip() for c in row])
-    cars_column = [str(c).strip() for c in rows[header]].index("Personbilar")
-    total_column = next(i for i, c in enumerate(rows[header + 1]) if i >= cars_column and str(c).strip() == "Totalt")
+    labels = [str(c).strip() if c is not None else "" for c in rows[header]]
+    cars_column = labels.index("Personbilar")
+    # The passenger-car group runs until the next vehicle type's heading.
+    group_end = next((i for i in range(cars_column + 1, len(labels)) if labels[i]), len(labels))
+    sub = rows[header + 1]
+    total_column = next(
+        (i for i in range(cars_column, min(group_end, len(sub))) if str(sub[i]).strip() == "Totalt"),
+        cars_column,
+    )
     averages = {}
-    for row in rows[header + 2:]:
-        name = str(row[0] or "").strip()
+    for row in rows[header + 1:]:
+        name = str(row[0] if row and row[0] is not None else "").strip()
         if name in COUNTIES and len(row) > total_column and isinstance(row[total_column], float):
             averages[COUNTIES[name]] = round(row[total_column] * 10)  # Mil (10 km) to km.
     return year, averages
@@ -147,18 +167,23 @@ def main():
         api_url, national = national_car_km()
         print(f"Trafikanalys API: passenger-car km for {min(national)}-{max(national)}")
         counties = {}
-        for url in workbooks():
-            linked_year = re.search(r"/(20\d\d)/", url)
+        for url in workbooks() + OLDER_WORKBOOKS:
+            # The first year in the path: the folder (2021/...) or the file name (korstrackor-2015.xlsx).
+            linked_year = re.search(r"korstrackor/\D*(20\d\d)", url)
             if not linked_year or linked_year.group(1) not in YEARS:
                 continue
-            _, body = download(url)
+            try:
+                _, body = download(url)
+            except urllib.error.HTTPError as error:
+                print(f"{url}: HTTP {error.code}, skipped")
+                continue
             rows = read_sheet(body, SHEET)
             if rows is None:
                 print(f"{url}: no sheet {SHEET!r}")
                 continue
             year, averages = county_averages(rows)
             print(f"{url}: {SHEET} for {year}, {len(averages)} counties")
-            if year in YEARS and len(averages) == len(COUNTIES):
+            if year in YEARS and len(averages) == len(COUNTIES) and year not in counties:
                 counties[year] = {"source": url, "kmPerCar": averages}
     except urllib.error.HTTPError as error:
         sys.exit(f"Trafikanalys returned HTTP {error.code} for {error.url}")

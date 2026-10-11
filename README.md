@@ -163,9 +163,11 @@ for passenger cars from two official sources, which
   `swedenCarKmMillions`.
 - The average distance per passenger car in each county, from table RS1 in
   Trafikanalys's yearly *Körsträckor* workbook on trafa.se, in
-  `countyKmPerCar`. Only the newest workbooks are linked, so of 1975–2025
-  this covers 2025. The script reads the workbook with Python's standard
-  library.
+  `countyKmPerCar`. trafa.se links only the newest workbooks, so the script
+  also reads two older ones that are still there (2015 and 2020, listed in
+  `OLDER_WORKBOOKS`). Of 1975–2025 this covers 2015, 2020 and 2025; no
+  workbook was found for 2010 or earlier. The script reads the workbooks with
+  Python's standard library and handles the slightly different table layouts.
 
 ```sh
 python3 scripts/fetch_car_distance.py
@@ -175,10 +177,10 @@ Each year, Sweden's passenger-car distance is shared out over the
 municipalities, so the estimates add up to the official total. A
 municipality's share is:
 
-- for a year with county averages (2025), its passenger cars weighted by its
-  county's average distance per car;
-- for other years with SCB's municipal car counts (2005–2020), simply its share
-  of Sweden's passenger cars, which ignores regional differences;
+- for a year with county averages (2015, 2020 and 2025), its passenger cars
+  weighted by its county's average distance per car;
+- for other years with SCB's municipal car counts (2005 and 2010), simply its
+  share of Sweden's passenger cars, which ignores regional differences;
 - before those counts (1975–2000), its population times its cars per
   inhabitant in 2005, which assumes its car ownership relative to other
   municipalities stayed as in 2005.
