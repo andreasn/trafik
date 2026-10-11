@@ -6,7 +6,10 @@ The front page shows one table for Sweden as a whole, 1975–2025 in five-year
 intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
 growth isn't just population growth), and the distance driven on Swedish roads
 in billions of vehicle-kilometres and per inhabitant, with a short summary above
-it. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
+it. Trafikanalys's distance series starts in 1990, so 1975–1985 are estimates,
+marked with an asterisk: each year's passenger cars times the vehicle-km per car
+of 1990 (17,861). That ratio stayed within about 3% from 1990 to 2015, and
+applied to 1995 and 2000 it lands within 1–3% of the official figures. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
 and `data/traffic.json`.
 
 Below that, you can pick any municipality (grouped by county) to see its
