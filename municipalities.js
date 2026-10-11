@@ -34,21 +34,24 @@ async function loadMunicipalities() {
   const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // Trafikanalys doesn't publish distance driven per municipality, so it is
-  // estimated. Where the Körsträckor report has an average distance per car
-  // for the county (2025), that average times the municipality's cars;
-  // otherwise Sweden's passenger-car distance shared out by the
-  // municipality's share of Sweden's cars.
-  const swedenCars = {};
-  for (const counts of carsByCode.values()) {
-    for (const [year, count] of Object.entries(counts)) swedenCars[year] = (swedenCars[year] ?? 0) + (count ?? 0);
+  // estimated by sharing out Sweden's passenger-car distance. Where the
+  // Körsträckor report has county averages per car (2025), each
+  // municipality's share is its cars weighted by its county's average;
+  // otherwise its plain share of Sweden's cars. Either way the estimates add
+  // up to Sweden's total.
+  const weight = (code, year) => {
+    const vehicles = carsByCode.get(code)?.[year] ?? 0;
+    const countyAverage = distance?.countyKmPerCar[year]?.kmPerCar[code.slice(0, 2)];
+    return countyAverage ? vehicles * countyAverage : vehicles;
+  };
+  const totalWeight = {};
+  for (const [code, counts] of carsByCode) {
+    for (const year of Object.keys(counts)) totalWeight[year] = (totalWeight[year] ?? 0) + weight(code, year);
   }
   function estimatedKm(code, year) {
-    const vehicles = carsByCode.get(code)?.[year];
-    if (!vehicles || !distance) return null;
-    const countyAverage = distance.countyKmPerCar[year]?.kmPerCar[code.slice(0, 2)];
-    if (countyAverage) return vehicles * countyAverage;
-    const swedenKm = distance.swedenCarKmMillions[year] * 1e6;
-    return swedenKm && swedenCars[year] ? (swedenKm * vehicles) / swedenCars[year] : null;
+    const swedenKm = (distance?.swedenCarKmMillions[year] ?? 0) * 1e6;
+    const share = weight(code, year);
+    return swedenKm && share && totalWeight[year] ? (swedenKm * share) / totalWeight[year] : null;
   }
   const countyYears = Object.keys(distance?.countyKmPerCar ?? {});
 
@@ -58,10 +61,10 @@ async function loadMunicipalities() {
     (distance
       ? "Distance driven by passenger cars is an estimate, as Trafikanalys doesn't publish it per municipality: " +
         (countyYears.length
-          ? `for ${countyYears.join(", ")} the municipality's cars times its county's average distance per car; ` +
-            "for other years "
-          : "") +
-        "Sweden's passenger-car distance shared out by the municipality's share of Sweden's cars. "
+          ? `Sweden's passenger-car distance is shared out by the municipality's cars, weighted for ${countyYears.join(", ")} ` +
+            "by its county's average distance per car and for other years unweighted. "
+          : "Sweden's passenger-car distance is shared out by the municipality's share of Sweden's cars. "
+        )
       : "") +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
     (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +

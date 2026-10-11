@@ -166,10 +166,14 @@ for passenger cars from two official sources, which
 python3 scripts/fetch_car_distance.py
 ```
 
-For a year with county averages (2025), a municipality's estimate is its
-passenger cars times its county's average distance per car. For other years
-it is Sweden's passenger-car distance times the municipality's share of
-Sweden's passenger cars, which ignores regional differences. There are no
+Each year, Sweden's passenger-car distance is shared out over the
+municipalities, so the estimates add up to the official total. For a year with
+county averages (2025), a municipality's share is its passenger cars weighted
+by its county's average distance per car. For other years it is simply its
+share of Sweden's passenger cars, which ignores regional differences. (The
+county averages can't be multiplied straight by SCB's car counts: they are per
+car in traffic at any time in the year, SCB counts cars at year end, and the
+product falls about 10% short of Sweden's total.) There are no
 estimates before 2005, since SCB has cars per municipality only from 2002.
 
 ## Using the data
