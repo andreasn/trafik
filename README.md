@@ -7,9 +7,10 @@ intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
 growth isn't just population growth), and the distance driven on Swedish roads
 in billions of vehicle-kilometres and per inhabitant, with a short summary above
 it. Trafikanalys's distance series starts in 1990, so 1975–1985 are estimates,
-marked with an asterisk: each year's passenger cars times the vehicle-km per car
-of 1990 (17,861). That ratio stayed within about 3% from 1990 to 2015, and
-applied to 1995 and 2000 it lands within 1–3% of the official figures. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
+marked with an asterisk. They scale 1990's figure by long-run trends from the
+International Transport Forum (ITF): passenger-car km by passenger-km travelled
+by car, and other vehicles' km by road freight tonne-km. Applied to 1995 this
+lands within 1% of the official figure. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
 and `data/traffic.json`.
 
 Below that, you can pick any municipality (grouped by county) to see its
@@ -191,11 +192,25 @@ municipality's population times its 2005 cars per inhabitant. These, and the
 cars per 1,000 derived from them, are marked with an asterisk too.
 
 Sweden's passenger-car distance itself is official from 1990. For 1975–1985 it
-is Sweden's passenger cars times the passenger-car km per car of 1990, as in the
+is 1990's figure scaled by ITF's passenger-km travelled by car, as in the
 national table. Municipalities formed after 1975 have no estimate before they
 existed. (The county averages can't be multiplied straight by SCB's car counts:
 they are per car in traffic at any time in the year, SCB counts cars at year
 end, and the product falls about 10% short of Sweden's total.)
+
+## Long-run trends from ITF
+
+`scripts/fetch_itf_trends.py` downloads two series for Sweden from the
+International Transport Forum's annual transport trends, through OECD's open
+data API (`sdmx.oecd.org`), and saves them to `data/itf_trends.json`: road
+passenger-km travelled by passenger car and road freight tonne-km, 1975–1995.
+They are only used to estimate distance driven before Trafikanalys's series
+starts in 1990; without the file the site falls back to scaling by the number
+of passenger cars.
+
+```sh
+python3 scripts/fetch_itf_trends.py
+```
 
 ## Using the data
 
