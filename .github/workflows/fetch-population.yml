@@ -24,14 +24,14 @@ jobs:
       - name: Fetch passenger cars per municipality from SCB
         run: python3 -u scripts/fetch_municipal_cars.py
 
+      - name: Fetch earlier cars per 1,000 inhabitants per municipality from RUS
+        run: python3 -u scripts/fetch_car_ownership.py
+
       - name: Fetch distance driven from Trafikanalys
         run: python3 -u scripts/fetch_traffic.py
 
       - name: Fetch passenger-car distance from Trafikanalys
         run: python3 -u scripts/fetch_car_distance.py
-
-      - name: Fetch long-run road transport trends from ITF/OECD
-        run: python3 -u scripts/fetch_itf_trends.py
 
       - name: Fetch distance driven per municipality from Kolada
         run: python3 -u scripts/fetch_kolada_distance.py
@@ -40,6 +40,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
-          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/traffic.json data/car_distance.json data/itf_trends.json data/municipal_distance.json
-          git diff --cached --quiet || git commit -m "Update data from SCB, Trafikanalys, ITF and Kolada"
+          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/car_ownership.json data/traffic.json data/car_distance.json data/municipal_distance.json
+          git diff --cached --quiet || git commit -m "Update data from SCB, RUS, Trafikanalys and Kolada"
           git push
