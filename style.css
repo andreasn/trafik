@@ -83,6 +83,23 @@ tbody th {
   font-size: 0.85rem;
 }
 
+/* A note under the municipal table, e.g. on company cars. */
+.note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--header-bg);
+  background: var(--row-alt);
+  font-size: 0.9rem;
+}
+
+.note p {
+  margin: 0;
+}
+
+.note p + p {
+  margin-top: 0.25rem;
+}
+
 /* The explanations under each table, collapsed until opened. */
 .about {
   margin-top: 0.75rem;
