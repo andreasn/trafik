@@ -105,6 +105,41 @@ tbody th {
   margin-top: 0.5rem;
 }
 
+/* Checkboxes for the optional columns, which start hidden. */
+.column-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.75rem 0;
+  padding: 0;
+  border: 0;
+  font-size: 0.9rem;
+}
+
+.column-toggles legend {
+  float: left;
+  margin-right: 0.25rem;
+  padding: 0;
+  color: var(--muted);
+}
+
+.column-toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.hide-2 tr > :nth-child(2),
+.hide-3 tr > :nth-child(3),
+.hide-4 tr > :nth-child(4),
+.hide-5 tr > :nth-child(5),
+.hide-6 tr > :nth-child(6),
+.hide-7 tr > :nth-child(7),
+.hide-8 tr > :nth-child(8) {
+  display: none;
+}
+
 /* The national table has six columns: headings wrap and, on narrow screens,
    the table scrolls sideways with the year and caption kept in view. */
 .scroll {

@@ -1,4 +1,5 @@
-// Shared table helpers for cars.js and municipalities.js.
+// Shared table helpers for cars.js and municipalities.js, and the checkboxes
+// that show or hide the optional columns.
 
 // Bolds the highest number in each column of a table body, comparing the
 // numbers as displayed (thousands separators, % signs and the * on
@@ -14,3 +15,26 @@ function boldHighest(body) {
     cells.forEach((cell, i) => cell.classList.toggle("highest", values[i] === highest));
   }
 }
+
+// Fills each "Show columns" fieldset with a checkbox per heading marked
+// data-toggle in its table. The columns start hidden; a checkbox toggles a
+// hide-N class on the table (N is the column's position), which style.css
+// uses to hide that column's cells.
+function columnToggles() {
+  for (const fieldset of document.querySelectorAll("fieldset.column-toggles")) {
+    const table = document.getElementById(fieldset.dataset.table);
+    const headings = [...table.tHead.rows[0].cells];
+    for (const heading of headings.filter((cell) => cell.hasAttribute("data-toggle"))) {
+      const hide = `hide-${headings.indexOf(heading) + 1}`;
+      const label = document.createElement("label");
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.addEventListener("change", () => table.classList.toggle(hide, !box.checked));
+      table.classList.add(hide);
+      label.append(box, ` ${heading.textContent}`);
+      fieldset.append(label);
+    }
+  }
+}
+
+columnToggles();
