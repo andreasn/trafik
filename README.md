@@ -6,9 +6,8 @@ The front page shows one table for Sweden as a whole, 1975–2025 in five-year
 intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
 growth isn't just population growth), and the distance driven on Swedish roads
 in billions of vehicle-kilometres and in Swedish mil (10 km) per inhabitant, as
-Swedish statistics usually give averages, with a short summary above
-it. Trafikanalys's distance series starts in 1990, so 1975–1985 come from
-SIKA's historical series (see below). It is filled in by `cars.js` from
+Swedish statistics usually give averages. Trafikanalys's distance series starts
+in 1990, so 1975–1985 come from SIKA's historical series (see below). It is filled in by `cars.js` from
 `data/cars.json`, `data/population.json`, `data/traffic.json` and
 `data/historical_traffic.json`.
 
