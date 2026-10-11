@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Probe Trafikanalys (temporary)
-        run: python3 -u scripts/probe_trafa.py
+        run: pip install -q openpyxl && python3 -u scripts/probe_trafa.py
 
       - name: Stop before fetching (temporary)
         run: exit 1
