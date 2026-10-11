@@ -1,9 +1,9 @@
-// Shows one municipality's passenger cars and population, picked from a list
-// grouped by county, in a table like the national one. Reads
-// data/municipalities.json and data/municipal_cars.json (fetched from SCB by
-// scripts/fetch_municipalities.py and scripts/fetch_municipal_cars.py). The
-// choice is kept in the address (#0180 for Stockholm) so a link opens the
-// same municipality.
+// Shows one municipality's passenger cars, population and distance driven,
+// picked from a list grouped by county, in a table like the national one.
+// Reads the data files fetched by the scripts in scripts/: SCB's population and
+// cars, Trafikanalys's distance (per municipality via Kolada where published)
+// and the inputs for estimating the rest. The choice is kept in the address
+// (#0180 for Stockholm) so a link opens the same municipality.
 async function loadMunicipalities() {
   const select = document.getElementById("municipality-select");
   const caption = document.getElementById("municipality-caption");
@@ -20,14 +20,16 @@ async function loadMunicipalities() {
   let distance;
   let swedenCars;
   let trends;
+  let official;
   try {
     // The page still works without the car and distance figures.
-    [population, cars, distance, swedenCars, trends] = await Promise.all([
+    [population, cars, distance, swedenCars, trends, official] = await Promise.all([
       load("data/municipalities.json"),
       load("data/municipal_cars.json").catch(() => null),
       load("data/car_distance.json").catch(() => null),
       load("data/cars.json").catch(() => null),
       load("data/itf_trends.json").catch(() => null),
+      load("data/municipal_distance.json").catch(() => null),
     ]);
   } catch (error) {
     source.textContent = `Could not load municipality data (${error.message}).`;
@@ -35,6 +37,10 @@ async function loadMunicipalities() {
   }
   const byCode = new Map(population.data.map((m) => [m.code, m]));
   const carsByCode = new Map((cars?.data ?? []).map((m) => [m.code, m.cars]));
+  // Trafikanalys's own per-municipality figures (via Kolada) where published;
+  // other years are estimated below.
+  const officialKm = new Map((official?.data ?? []).map((m) => [m.code, m.kmPerInhabitant]));
+  const officialYears = (official?.years ?? []).map(String);
   const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // Trafikanalys doesn't publish distance driven per municipality, so it is
@@ -98,11 +104,17 @@ async function loadMunicipalities() {
     const share = weight(code, String(year));
     return swedenKm && share && totalWeight[year] ? (swedenKm * share) / totalWeight[year] : null;
   }
-  const countyYears = Object.keys(distance?.countyKmPerCar ?? {});
+  // Years where the county weighting is used, i.e. not replaced by official figures.
+  const countyYears = Object.keys(distance?.countyKmPerCar ?? {}).filter((year) => !officialYears.includes(year));
 
   source.textContent =
     (distance
-      ? "* Estimate: Trafikanalys doesn't publish distance driven per municipality, so " +
+      ? (officialYears.length
+          ? `Distance driven by passenger cars for ${officialYears.join(", ")} is Trafikanalys's figure per municipality ` +
+            "(published through Kolada): cars registered in the municipality, wherever they were driven, with company " +
+            "cars counted where the company is registered. "
+          : "") +
+        `* Estimate: ${officialYears.length ? "for other years" : "Trafikanalys doesn't publish distance driven per municipality, so"} ` +
         (countyYears.length
           ? `Sweden's passenger-car distance is shared out by the municipality's passenger cars, weighted for ${countyYears.join(", ")} ` +
             "by its county's average distance per car and for other years unweighted. "
@@ -123,6 +135,7 @@ async function loadMunicipalities() {
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
     (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
     (usesTrends ? `${trends.source} (retrieved ${trends.retrieved}); ` : "") +
+    (officialYears.length ? `${official.source} (retrieved ${official.retrieved}); ` : "") +
     `${population.source} (retrieved ${population.retrieved}).`;
 
   // One group per county, both in Swedish alphabetical order.
@@ -149,8 +162,10 @@ async function loadMunicipalities() {
       const carsEstimated = counted == null;
       const vehicles = counted ?? estimatedCars(code, year);
       const perThousand = people && vehicles != null ? Math.round((vehicles / people) * 1000) : null;
-      const km = estimatedKm(code, year);
-      const kmPerPerson = km && people ? Math.round(km / people) : null;
+      const kmPerInhabitant = officialKm.get(code)?.[year];
+      const kmOfficial = kmPerInhabitant != null && people != null;
+      const km = kmOfficial ? kmPerInhabitant * people : estimatedKm(code, year);
+      const kmPerPerson = kmOfficial ? kmPerInhabitant : km && people ? Math.round(km / people) : null;
       const tr = document.createElement("tr");
       const yearCell = document.createElement("th");
       yearCell.scope = "row";
@@ -162,8 +177,8 @@ async function loadMunicipalities() {
         { value: vehicles, estimate: carsEstimated },
         { value: people },
         { value: perThousand, estimate: carsEstimated },
-        { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: true },
-        { value: kmPerPerson, estimate: true },
+        { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: !kmOfficial },
+        { value: kmPerPerson, estimate: !kmOfficial },
       ];
       for (const { value, estimate } of cells) {
         const cell = document.createElement("td");
