@@ -1,0 +1,44 @@
+{
+  "title": "Distance driven by passenger cars: Sweden's total and county averages",
+  "source": "Trafikanalys, Trafikarbete (t04010, passenger cars) and Körsträckor table RS1",
+  "sourceUrl": "https://api.trafa.se/api/data?lang=sv&query=t04010|ar|fslag:10|fordonkm",
+  "retrieved": "2026-10-11",
+  "swedenCarKmMillions": {
+    "1990": 55756,
+    "1995": 56890,
+    "2000": 58890,
+    "2005": 62059,
+    "2010": 62793,
+    "2015": 65877,
+    "2020": 62162,
+    "2025": 68771
+  },
+  "countyKmPerCar": {
+    "2025": {
+      "source": "https://www.trafa.se/globalassets/statistik/vagtrafik/korstrackor/2025/korstrackor-2025---2026-09-21.xlsx",
+      "kmPerCar": {
+        "01": 13780,
+        "03": 12703,
+        "04": 11883,
+        "05": 11977,
+        "06": 12518,
+        "07": 12436,
+        "08": 11937,
+        "09": 10044,
+        "10": 11720,
+        "12": 12187,
+        "13": 12180,
+        "14": 12462,
+        "17": 12041,
+        "18": 11972,
+        "19": 11966,
+        "20": 11582,
+        "21": 11750,
+        "22": 11673,
+        "23": 11934,
+        "24": 11542,
+        "25": 11543
+      }
+    }
+  }
+}
