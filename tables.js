@@ -17,21 +17,29 @@ function boldHighest(body) {
 }
 
 // Fills each "Show columns" fieldset with a checkbox per heading marked
-// data-toggle in its table. The columns start hidden; a checkbox toggles a
-// hide-N class on the table (N is the column's position), which style.css
-// uses to hide that column's cells.
+// data-toggle in its table, labelled with the heading. Headings with the same
+// data-toggle text share one checkbox labelled with that text. The columns
+// start hidden; a checkbox toggles a hide-N class on the table (N is the
+// column's position), which style.css uses to hide that column's cells.
 function columnToggles() {
   for (const fieldset of document.querySelectorAll("fieldset.column-toggles")) {
     const table = document.getElementById(fieldset.dataset.table);
     const headings = [...table.tHead.rows[0].cells];
+    const groups = new Map();
     for (const heading of headings.filter((cell) => cell.hasAttribute("data-toggle"))) {
-      const hide = `hide-${headings.indexOf(heading) + 1}`;
+      const name = heading.dataset.toggle || heading.textContent;
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(`hide-${headings.indexOf(heading) + 1}`);
+    }
+    // Single columns first, then the shared checkboxes.
+    const ordered = [...groups].sort(([, a], [, b]) => (a.length > 1) - (b.length > 1));
+    for (const [name, classes] of ordered) {
       const label = document.createElement("label");
       const box = document.createElement("input");
       box.type = "checkbox";
-      box.addEventListener("change", () => table.classList.toggle(hide, !box.checked));
-      table.classList.add(hide);
-      label.append(box, ` ${heading.textContent}`);
+      box.addEventListener("change", () => classes.forEach((hide) => table.classList.toggle(hide, !box.checked)));
+      table.classList.add(...classes);
+      label.append(box, ` ${name}`);
       fieldset.append(label);
     }
   }
