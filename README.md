@@ -2,28 +2,28 @@
 
 A website for traffic data in Sweden.
 
-The front page shows one table for Sweden as a whole, 1975–2025 in five-year
-intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
-growth isn't just population growth), and the distance driven on Swedish roads
-in Swedish mil (10 km): millions of vehicle-mil in total and mil per
-inhabitant. (Trafikanalys gives the total in km and averages in mil; the site
-uses mil throughout.) Trafikanalys's distance series starts in 1990, so
-1975–1985 come from SIKA's historical series (see below). It is filled in by
-`cars.js` from `data/cars.json`, `data/population.json`, `data/traffic.json`
-and `data/historical_traffic.json`.
+The front page has a "Show data for" dropdown at the top. It starts on Sweden
+(whole country), which shows one table for 1975–2025 in five-year intervals:
+passenger cars in traffic, population, cars per 1,000 inhabitants (so growth
+isn't just population growth), and the distance driven on Swedish roads in
+Swedish mil (10 km): millions of vehicle-mil in total and mil per inhabitant.
+(Trafikanalys gives the total in km and averages in mil; the site uses mil
+throughout.) Trafikanalys's distance series starts in 1990, so 1975–1985 come
+from SIKA's historical series (see below). It is filled in by `cars.js` from
+`data/cars.json`, `data/population.json`, `data/traffic.json` and
+`data/historical_traffic.json`.
 
-Below that, you can pick any municipality (grouped by county, or by typing
-part of its name in the search box, accents optional) to see its
-passenger cars in traffic, population and cars per 1,000 inhabitants for the
-same years, in a table like the national one, with an estimate of the distance
-driven by its passenger cars. Two columns compare it with Sweden as a whole, as
-a percentage above or below Sweden's cars per inhabitant and passenger-car
-distance per inhabitant (in mil, like the national table). Estimates are marked with an asterisk. It is
-drawn by `municipalities.js` from `data/municipalities.json`,
+Picking a municipality in the dropdown (grouped by county), or typing part of
+its name in the search box next to it (accents optional), swaps in a table like
+the national one for that municipality, with an estimate of the distance driven
+by its passenger cars. Two columns compare it with Sweden as a whole, as a
+percentage above or below Sweden's cars per inhabitant and passenger-car
+distance per inhabitant. Estimates are marked with an asterisk. It is drawn by
+`municipalities.js` from `data/municipalities.json`,
 `data/municipal_cars.json`, `data/car_ownership.json`,
 `data/municipal_distance.json`, `data/car_distance.json` and
-`data/historical_traffic.json`. The address keeps the
-municipality code, so for example `#0180` opens Stockholm.
+`data/historical_traffic.json`. The address keeps the municipality code, so for
+example `#0180` opens Stockholm; without a code the page shows Sweden.
 
 In both tables the highest number in each column is bold, and the cars in
 traffic, population and total distance columns, and the municipal table's
