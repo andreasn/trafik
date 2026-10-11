@@ -5,8 +5,13 @@
 // distance (per municipality via Kolada where published) and the inputs for
 // estimating the rest. The choice is kept in the address (#0180 for
 // Stockholm) so a link opens the same municipality.
+const SWEDEN = "sweden";
+
 async function loadMunicipalities() {
   const select = document.getElementById("municipality-select");
+  const swedenSection = document.getElementById("sweden-section");
+  const municipalitySection = document.getElementById("municipality-section");
+  const heading = document.getElementById("municipalities-heading");
   const search = document.getElementById("municipality-search");
   const names = document.getElementById("municipality-names");
   const caption = document.getElementById("municipality-caption");
@@ -195,10 +200,16 @@ async function loadMunicipalities() {
     select.append(group);
   }
 
+  // "sweden" shows the national table (filled in by cars.js); a
+  // municipality code shows that municipality's table instead.
   function show(code) {
+    select.value = code;
+    swedenSection.hidden = code !== SWEDEN;
+    municipalitySection.hidden = code === SWEDEN;
+    if (code === SWEDEN) return;
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
-    select.value = code;
+    heading.textContent = `Cars, population and distance driven in ${municipality.name}, 1975–2025`;
     caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and distance driven, five-year intervals`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
@@ -247,9 +258,10 @@ async function loadMunicipalities() {
     boldHighest(body);
   }
 
-  const fromHash = () => location.hash.slice(1);
+  // The address keeps a municipality's code (#0180); Sweden has none.
+  const fromHash = () => (byCode.has(location.hash.slice(1)) ? location.hash.slice(1) : SWEDEN);
   const choose = (code) => {
-    history.replaceState(null, "", `#${code}`);
+    history.replaceState(null, "", code === SWEDEN ? location.pathname + location.search : `#${code}`);
     show(code);
   };
   select.addEventListener("change", () => choose(select.value));
@@ -258,8 +270,14 @@ async function loadMunicipalities() {
   // list). Picking a suggestion, or pressing Enter, shows the best match;
   // accents and case are ignored, so "malmo" finds Malmö.
   const plain = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
-  const byPlainName = [...population.data].sort((a, b) => byName(a.name, b.name)).map((m) => [plain(m.name), m]);
-  names.replaceChildren(...byPlainName.map(([, m]) => {
+  // Sweden can be searched for too, in English or Swedish.
+  const sweden = { code: SWEDEN, name: "Sweden (whole country)", county: "" };
+  const listed = [sweden, ...[...population.data].sort((a, b) => byName(a.name, b.name))];
+  const byPlainName = [
+    ...listed.map((m) => [plain(m.name), m]),
+    ...["Sweden", "Sverige"].map((name) => [plain(name), sweden]),
+  ];
+  names.replaceChildren(...listed.map((m) => {
     const option = new Option(m.name);
     option.label = m.county ?? "";
     return option;
@@ -288,8 +306,8 @@ async function loadMunicipalities() {
     const m = find(search.value, false);
     if (m) pick(m);
   });
-  addEventListener("hashchange", () => byCode.has(fromHash()) && show(fromHash()));
-  show(byCode.has(fromHash()) ? fromHash() : byCode.has("0180") ? "0180" : population.data[0].code);
+  addEventListener("hashchange", () => show(fromHash()));
+  show(fromHash());
 }
 
 loadMunicipalities();

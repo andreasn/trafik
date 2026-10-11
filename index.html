@@ -13,7 +13,22 @@
   <main>
     <h1>Traffic Data Sweden</h1>
 
-    <section aria-labelledby="cars-heading">
+    <!-- Sweden as a whole is shown first; picking a municipality swaps in its table. -->
+    <div class="pickers">
+      <label class="picker">
+        Show data for
+        <select id="municipality-select">
+          <option value="sweden">Sweden (whole country)</option>
+        </select>
+      </label>
+      <label class="picker">
+        Search
+        <input type="search" id="municipality-search" list="municipality-names" placeholder="Type a name, e.g. Kiruna" autocomplete="off">
+      </label>
+      <datalist id="municipality-names"></datalist>
+    </div>
+
+    <section id="sweden-section" aria-labelledby="cars-heading">
       <h2 id="cars-heading">Cars, population and distance driven in Sweden, 1975–2025</h2>
       <p id="cars-status" class="lead">Loading data from Statistics Sweden and Trafikanalys…</p>
 
@@ -43,21 +58,8 @@
       </details>
     </section>
 
-    <section aria-labelledby="municipalities-heading">
+    <section id="municipality-section" aria-labelledby="municipalities-heading" hidden>
       <h2 id="municipalities-heading">Cars, population and distance driven by municipality, 1975–2025</h2>
-      <p class="lead">Choose one of Sweden's 290 municipalities to see its passenger cars in traffic, population and estimated distance driven by passenger cars.</p>
-      <div class="pickers">
-        <label class="picker">
-          Search
-          <input type="search" id="municipality-search" list="municipality-names" placeholder="Type a name, e.g. Kiruna" autocomplete="off">
-        </label>
-        <datalist id="municipality-names"></datalist>
-        <label class="picker">
-          Municipality
-          <select id="municipality-select"></select>
-        </label>
-      </div>
-
       <fieldset class="column-toggles" data-table="municipality-table">
         <legend>Show columns</legend>
       </fieldset>
