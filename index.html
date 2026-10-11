@@ -6,6 +6,7 @@
   <title>Traffic Data Sweden</title>
   <link rel="stylesheet" href="style.css">
   <script src="cars.js" defer></script>
+  <script src="traffic.js" defer></script>
   <script src="municipalities.js" defer></script>
 </head>
 <body>
@@ -30,6 +31,25 @@
       </table>
 
       <p id="cars-source" class="source"></p>
+    </section>
+
+    <section aria-labelledby="traffic-heading">
+      <h2 id="traffic-heading">Distance driven in Sweden, 1975–2025</h2>
+      <p id="traffic-summary" class="lead">Loading data from Trafikanalys…</p>
+
+      <table id="traffic-table">
+        <caption>Distance driven on Swedish roads, all vehicles, five-year intervals</caption>
+        <thead>
+          <tr>
+            <th scope="col">Year</th>
+            <th scope="col" class="number">Vehicle-km (billions)</th>
+            <th scope="col" class="number">Km per inhabitant</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <p id="traffic-source" class="source"></p>
     </section>
 
     <section aria-labelledby="municipalities-heading">

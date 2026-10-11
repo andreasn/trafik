@@ -8,7 +8,11 @@ population and cars per 1,000 inhabitants (so growth isn't just population
 growth). It is filled in by `cars.js` from `data/cars.json` and
 `data/population.json`.
 
-Below that, you can pick any municipality (grouped by county) to see its
+Below that, a table shows the distance driven on Swedish roads each year, in
+billions of vehicle-kilometres and per inhabitant, drawn by `traffic.js` from
+`data/traffic.json` and `data/population.json`.
+
+Then you can pick any municipality (grouped by county) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
 same years, in a table like the national one. It is drawn by
 `municipalities.js` from `data/municipalities.json` and
@@ -31,7 +35,7 @@ needs only Python 3:
 python3 scripts/fetch_population.py
 ```
 
-You can also run it on GitHub: Actions → **Fetch SCB data** → Run workflow.
+You can also run it on GitHub: Actions → **Fetch data** → Run workflow.
 The workflow fetches both population and cars and commits the updated JSON
 files to the branch.
 
@@ -81,7 +85,7 @@ existed.
 python3 scripts/fetch_municipalities.py
 ```
 
-The **Fetch SCB data** workflow runs this script too. The file looks
+The **Fetch data** workflow runs this script too. The file looks
 like this:
 
 ```json
@@ -119,6 +123,30 @@ python3 scripts/fetch_municipal_cars.py
 The file has `years`, the national total in `sweden`, and one
 `{ "code": "0114", "cars": { "2005": ..., "2025": ... } }` entry per
 municipality, matching the codes in `data/municipalities.json`.
+
+## Distance driven
+
+`scripts/fetch_traffic.py` downloads the total distance driven on Swedish
+roads each year, all vehicle types together, from Trafikanalys (the Swedish
+agency for official transport statistics) and saves it to `data/traffic.json`:
+
+```sh
+python3 scripts/fetch_traffic.py
+```
+
+It uses Trafikanalys's open API (`api.trafa.se`), product *Trafikarbete*
+(`t04010`), measure *Fordonskilometer* in millions of vehicle-kilometres. The
+series starts in 1990, so 1975, 1980 and 1985 are listed under
+`unavailableYears` in the file:
+
+```json
+{
+  "title": "Traffic volume on Swedish roads, all vehicles",
+  "unit": "million vehicle-kilometres",
+  "unavailableYears": [1975, 1980, 1985],
+  "data": [{ "year": 1990, "vehicleKmMillions": 64310 }, ...]
+}
+```
 
 ## Using the data
 
