@@ -27,10 +27,13 @@ jobs:
       - name: Fetch distance driven from Trafikanalys
         run: python3 -u scripts/fetch_traffic.py
 
+      - name: Fetch distance driven per county from Trafikanalys
+        run: python3 -u scripts/fetch_county_distance.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
-          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/traffic.json
+          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/traffic.json data/county_distance.json
           git diff --cached --quiet || git commit -m "Update data from SCB and Trafikanalys"
           git push
