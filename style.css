@@ -149,3 +149,9 @@ tbody th {
 .missing {
   color: var(--muted);
 }
+
+/* The asterisk on estimated figures. */
+td abbr[title] {
+  text-decoration: none;
+  cursor: help;
+}

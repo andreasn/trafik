@@ -56,16 +56,16 @@ async function loadMunicipalities() {
   const countyYears = Object.keys(distance?.countyKmPerCar ?? {});
 
   source.textContent =
-    "A dash means there is no figure: SCB has cars per municipality from 2002, and some " +
-    "municipalities were formed after 1975. Cars in traffic at the end of the year; population on 31 December. " +
     (distance
-      ? "Distance driven by passenger cars is an estimate, as Trafikanalys doesn't publish it per municipality: " +
+      ? "* Estimate: Trafikanalys doesn't publish distance driven per municipality, so " +
         (countyYears.length
-          ? `Sweden's passenger-car distance is shared out by the municipality's cars, weighted for ${countyYears.join(", ")} ` +
+          ? `Sweden's passenger-car distance is shared out by the municipality's passenger cars, weighted for ${countyYears.join(", ")} ` +
             "by its county's average distance per car and for other years unweighted. "
           : "Sweden's passenger-car distance is shared out by the municipality's share of Sweden's cars. "
         )
       : "") +
+    "A dash means there is no figure: SCB has cars per municipality from 2002, and some " +
+    "municipalities were formed after 1975. Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
     (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
     `${population.source} (retrieved ${population.retrieved}).`;
@@ -87,7 +87,7 @@ async function loadMunicipalities() {
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
     select.value = code;
-    caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and estimated distance driven, five-year intervals`;
+    caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and distance driven, five-year intervals`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
       const vehicles = carCounts[year];
@@ -99,17 +99,28 @@ async function loadMunicipalities() {
       yearCell.scope = "row";
       yearCell.textContent = year;
       tr.append(yearCell);
+      // Distance driven is estimated; those cells get an asterisk.
       const cells = [
-        vehicles,
-        people,
-        perThousand,
-        km == null ? null : oneDecimal.format(km / 1e6),
-        kmPerPerson,
+        { value: vehicles },
+        { value: people },
+        { value: perThousand },
+        { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: true },
+        { value: kmPerPerson, estimate: true },
       ];
-      for (const value of cells) {
+      for (const { value, estimate } of cells) {
         const cell = document.createElement("td");
         cell.className = value == null ? "number missing" : "number";
-        cell.textContent = value == null ? "–" : typeof value === "string" ? value : number.format(value);
+        if (value == null) {
+          cell.textContent = "–";
+        } else {
+          cell.textContent = typeof value === "string" ? value : number.format(value);
+          if (estimate) {
+            const mark = document.createElement("abbr");
+            mark.title = "Estimate";
+            mark.textContent = "*";
+            cell.append(mark);
+          }
+        }
         tr.append(cell);
       }
       return tr;
