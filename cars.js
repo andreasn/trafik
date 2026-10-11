@@ -1,14 +1,10 @@
-// Fills the national summary and table from data/cars.json and
+// Fills the national table from data/cars.json and
 // data/population.json (fetched from SCB), data/traffic.json (Trafikanalys)
 // and data/historical_traffic.json (SIKA, for the years before Trafikanalys's
 // series), all but the last fetched by the scripts in scripts/.
 
 const number = new Intl.NumberFormat("en-GB");
 const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-function millions(value, digits = 1) {
-  return `${(value / 1e6).toFixed(digits)}M`;
-}
 
 async function load() {
   const load = (url) => fetch(url).then((response) => {
@@ -47,20 +43,8 @@ async function load() {
     };
   });
 
-  const first = rows[0];
-  const last = rows[rows.length - 1];
-  const firstDriven = rows.find((row) => row.km !== null);
-  document.getElementById("cars-summary").textContent =
-    `Sweden had ${millions(last.cars, 2).replace("M", " million")} passenger cars in traffic at the end of ${last.year}, ` +
-    `up from ${millions(first.cars, 2).replace("M", " million")} in ${first.year}` +
-    (first.perThousand && last.perThousand
-      ? `. That is ${Math.round(last.perThousand)} cars per 1,000 inhabitants, compared with ${Math.round(first.perThousand)}.`
-      : ".") +
-    (firstDriven && last.km
-      ? ` Vehicles drove ${oneDecimal.format(last.km / 1e9)} billion km on Swedish roads in ${last.year}, ` +
-        `${number.format(Math.round(last.kmPerPerson / 10))} mil (${number.format(Math.round(last.kmPerPerson))} km) per inhabitant, ` +
-        `up from ${oneDecimal.format(firstDriven.km / 1e9)} billion km in ${firstDriven.year}.`
-      : "");
+  // Only shown while loading or if loading fails.
+  document.getElementById("cars-status").hidden = true;
 
   const tableBody = document.querySelector("#cars-table tbody");
   tableBody.replaceChildren(...rows.map((row) => {
@@ -98,6 +82,8 @@ async function load() {
 }
 
 load().catch((error) => {
-  document.getElementById("cars-summary").textContent =
+  const status = document.getElementById("cars-status");
+  status.hidden = false;
+  status.textContent =
     `Could not load the data (${error.message}). If you opened the file directly, serve the site with "python3 -m http.server".`;
 });
