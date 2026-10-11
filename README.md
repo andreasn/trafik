@@ -11,9 +11,10 @@ and `data/traffic.json`.
 
 Below that, you can pick any municipality (grouped by county) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
-same years, in a table like the national one. It is drawn by
-`municipalities.js` from `data/municipalities.json` and
-`data/municipal_cars.json`. The address keeps the
+same years, in a table like the national one, with an estimate of the distance
+driven by its passenger cars. It is drawn by `municipalities.js` from
+`data/municipalities.json`, `data/municipal_cars.json` and
+`data/car_distance.json`. The address keeps the
 municipality code, so for example `#0180` opens Stockholm.
 
 No build step is needed. Browsers block loading the data files on pages opened
@@ -144,6 +145,32 @@ series starts in 1990, so 1975, 1980 and 1985 are listed under
   "data": [{ "year": 1990, "vehicleKmMillions": 64310 }, ...]
 }
 ```
+
+## Estimated distance driven per municipality
+
+Trafikanalys doesn't publish distance driven per municipality: its finest
+breakdown is the county the vehicle is registered in. So the site estimates it
+for passenger cars from two official sources, which
+`scripts/fetch_car_distance.py` saves to `data/car_distance.json`:
+
+- Sweden's total distance driven by passenger cars per year, from
+  Trafikanalys's open API (product `t04010`, *Trafikarbete*), in
+  `swedenCarKmMillions`.
+- The average distance per passenger car in each county, from table RS1 in
+  Trafikanalys's yearly *Körsträckor* workbook on trafa.se, in
+  `countyKmPerCar`. Only the newest workbooks are linked, so of 1975–2025
+  this covers 2025. The script reads the workbook with Python's standard
+  library.
+
+```sh
+python3 scripts/fetch_car_distance.py
+```
+
+For a year with county averages (2025), a municipality's estimate is its
+passenger cars times its county's average distance per car. For other years
+it is Sweden's passenger-car distance times the municipality's share of
+Sweden's passenger cars, which ignores regional differences. There are no
+estimates before 2005, since SCB has cars per municipality only from 2002.
 
 ## Using the data
 
