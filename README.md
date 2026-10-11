@@ -26,8 +26,9 @@ drawn by `municipalities.js` from `data/municipalities.json`,
 municipality code, so for example `#0180` opens Stockholm.
 
 In both tables the highest number in each column is bold, and the cars in
-traffic, population and total distance columns are hidden until you tick their
-"Show columns" checkboxes (`tables.js`).
+traffic, population and total distance columns, and the municipal table's
+comparison with Sweden, are hidden until you tick their "Show columns"
+checkboxes (`tables.js`).
 
 No build step is needed. Browsers block loading the data files on pages opened
 straight from disk, so serve the folder to view it, for example with
