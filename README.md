@@ -2,17 +2,14 @@
 
 A website for traffic data in Sweden.
 
-The front page shows the number of passenger cars in traffic in Sweden,
-1975–2025 in five-year intervals: a short summary and a table of cars,
-population and cars per 1,000 inhabitants (so growth isn't just population
-growth). It is filled in by `cars.js` from `data/cars.json` and
-`data/population.json`.
+The front page shows one table for Sweden as a whole, 1975–2025 in five-year
+intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
+growth isn't just population growth), and the distance driven on Swedish roads
+in billions of vehicle-kilometres and per inhabitant, with a short summary above
+it. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
+and `data/traffic.json`.
 
-Below that, a table shows the distance driven on Swedish roads each year, in
-billions of vehicle-kilometres and per inhabitant, drawn by `traffic.js` from
-`data/traffic.json` and `data/population.json`.
-
-Then you can pick any municipality (grouped by county) to see its
+Below that, you can pick any municipality (grouped by county) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
 same years, in a table like the national one. It is drawn by
 `municipalities.js` from `data/municipalities.json` and

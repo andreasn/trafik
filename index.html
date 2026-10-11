@@ -6,7 +6,6 @@
   <title>Traffic Data Sweden</title>
   <link rel="stylesheet" href="style.css">
   <script src="cars.js" defer></script>
-  <script src="traffic.js" defer></script>
   <script src="municipalities.js" defer></script>
 </head>
 <body>
@@ -14,42 +13,27 @@
     <h1>Traffic Data Sweden</h1>
 
     <section aria-labelledby="cars-heading">
-      <h2 id="cars-heading">Passenger cars in Sweden, 1975–2025</h2>
-      <p id="cars-summary" class="lead">Loading data from Statistics Sweden…</p>
+      <h2 id="cars-heading">Cars, population and distance driven in Sweden, 1975–2025</h2>
+      <p id="cars-summary" class="lead">Loading data from Statistics Sweden and Trafikanalys…</p>
 
-      <table id="cars-table">
-        <caption>Passenger cars and population, five-year intervals</caption>
-        <thead>
-          <tr>
-            <th scope="col">Year</th>
-            <th scope="col" class="number">Cars in traffic</th>
-            <th scope="col" class="number">Population</th>
-            <th scope="col" class="number">Cars per 1,000</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <p class="caption" id="cars-caption">Passenger cars, population and distance driven, five-year intervals</p>
+      <div class="scroll">
+        <table id="cars-table" aria-labelledby="cars-caption">
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col" class="number">Cars in traffic</th>
+              <th scope="col" class="number">Population</th>
+              <th scope="col" class="number">Cars per 1,000</th>
+              <th scope="col" class="number">Vehicle-km (billions)</th>
+              <th scope="col" class="number">Km per inhabitant</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
       <p id="cars-source" class="source"></p>
-    </section>
-
-    <section aria-labelledby="traffic-heading">
-      <h2 id="traffic-heading">Distance driven in Sweden, 1975–2025</h2>
-      <p id="traffic-summary" class="lead">Loading data from Trafikanalys…</p>
-
-      <table id="traffic-table">
-        <caption>Distance driven on Swedish roads, all vehicles, five-year intervals</caption>
-        <thead>
-          <tr>
-            <th scope="col">Year</th>
-            <th scope="col" class="number">Vehicle-km (billions)</th>
-            <th scope="col" class="number">Km per inhabitant</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <p id="traffic-source" class="source"></p>
     </section>
 
     <section aria-labelledby="municipalities-heading">

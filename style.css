@@ -67,7 +67,8 @@ h2 {
   margin-top: 0;
 }
 
-caption {
+caption,
+.caption {
   font-weight: 600;
   text-align: left;
   margin-bottom: 0.5rem;
@@ -87,6 +88,34 @@ tbody th {
 .source {
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+/* The national table has six columns: headings wrap and, on narrow screens,
+   the table scrolls sideways with the year and caption kept in view. */
+.scroll {
+  overflow-x: auto;
+}
+
+.scroll th,
+.scroll td {
+  padding: 0.5rem 0.75rem;
+}
+
+.scroll td {
+  white-space: nowrap;
+}
+
+.scroll th:first-child {
+  position: sticky;
+  left: 0;
+}
+
+.scroll tbody th {
+  background: var(--bg);
+}
+
+.scroll tbody tr:nth-child(even) th {
+  background: var(--row-alt);
 }
 
 @media (max-width: 30rem) {
