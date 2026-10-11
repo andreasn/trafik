@@ -1,0 +1,46 @@
+{
+  "title": "Traffic volume on Swedish roads, all vehicles",
+  "unit": "million vehicle-kilometres",
+  "source": "Trafikanalys, Trafikarbete (t04010, fordonkm)",
+  "sourceUrl": "https://api.trafa.se/api/data?lang=sv&query=t04010|ar|fordonkm",
+  "retrieved": "2026-10-11",
+  "unavailableYears": [
+    1975,
+    1980,
+    1985
+  ],
+  "data": [
+    {
+      "year": 1990,
+      "vehicleKmMillions": 64310
+    },
+    {
+      "year": 1995,
+      "vehicleKmMillions": 65700
+    },
+    {
+      "year": 2000,
+      "vehicleKmMillions": 69272
+    },
+    {
+      "year": 2005,
+      "vehicleKmMillions": 74620
+    },
+    {
+      "year": 2010,
+      "vehicleKmMillions": 76738
+    },
+    {
+      "year": 2015,
+      "vehicleKmMillions": 80687
+    },
+    {
+      "year": 2020,
+      "vehicleKmMillions": 77813
+    },
+    {
+      "year": 2025,
+      "vehicleKmMillions": 85169
+    }
+  ]
+}
