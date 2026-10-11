@@ -129,14 +129,21 @@ tbody th {
   }
 }
 
+.pickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1rem 0;
+}
+
 .picker {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  margin: 1rem 0;
 }
 
-.picker select {
+.picker select,
+.picker input {
   max-width: 20rem;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border);
