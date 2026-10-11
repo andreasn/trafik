@@ -15,7 +15,9 @@ Below that, you can pick any municipality (grouped by county, or by typing
 part of its name in the search box, accents optional) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
 same years, in a table like the national one, with an estimate of the distance
-driven by its passenger cars. Estimates are marked with an asterisk. It is
+driven by its passenger cars. Two columns compare it with Sweden as a whole, as
+a percentage above or below Sweden's cars per inhabitant and passenger-car km
+per inhabitant. Estimates are marked with an asterisk. It is
 drawn by `municipalities.js` from `data/municipalities.json`,
 `data/municipal_cars.json`, `data/car_ownership.json`,
 `data/municipal_distance.json`, `data/car_distance.json` and
