@@ -39,10 +39,8 @@ def number(text):
     return float(text) if text not in ("", "..", "-") else None
 
 
-def fetch():
-    query = f"{PRODUCT}|ar|fslag:{CARS}|reglan|{'|'.join(MEASURES)}"
+def request(query):
     url = f"{API_URL}?{urllib.parse.urlencode({'lang': 'sv', 'query': query}, safe='|:,')}"
-    print(f"Fetching {url}")
     for attempt in range(1, 4):
         try:
             with urllib.request.urlopen(url, timeout=60) as response:
@@ -53,23 +51,43 @@ def fetch():
             print("Timed out, retrying")
 
 
-def parse(result):
-    if result.get("Errors"):
-        sys.exit(f"Trafikanalys returned errors: {result['Errors']}")
+def fetch():
+    """One request per measure; the API returns nothing for some combinations."""
+    results = []
+    for measure in MEASURES:
+        for query in (
+            f"{PRODUCT}|ar|fslag:{CARS}|reglan|{measure}",
+            f"{PRODUCT}|ar|fslag|reglan|{measure}",
+        ):
+            url, result = request(query)
+            rows = len(result.get("Rows") or [])
+            print(f"{query}: {rows} rows{', errors ' + str(result['Errors']) if result.get('Errors') else ''}")
+            if rows:
+                results.append((url, result))
+                break
+    return results
+
+
+def parse(results):
     counties = {}
     labels = {}
-    print(f"First row: {json.dumps(result['Rows'][:1], ensure_ascii=False)[:600]}")
-    for row in result["Rows"]:
-        cells = {cell["Column"]: cell for cell in row["Cell"]}
-        year = str(cells["ar"]["Value"])
-        county = cells["reglan"]
-        code = county.get("Name") or county["Value"]
-        labels[code] = county.get("Value")
-        for measure, key in MEASURES.items():
-            value = number(str(cells[measure]["Value"]))
-            if value is not None:
-                # Mil (10 km) to km.
-                counties.setdefault(code, {}).setdefault(year, {})[key] = round(value * 10)
+    print(f"First row: {json.dumps(results[0][1]['Rows'][:1], ensure_ascii=False)[:600]}")
+    for _, result in results:
+        for row in result["Rows"]:
+            cells = {cell["Column"]: cell for cell in row["Cell"]}
+            # Unfiltered requests include every vehicle type; keep passenger cars.
+            if "fslag" in cells and str(cells["fslag"].get("Name") or cells["fslag"]["Value"]) not in (CARS, "Personbil"):
+                continue
+            year = str(cells["ar"]["Value"])
+            county = cells["reglan"]
+            code = county.get("Name") or county["Value"]
+            labels[code] = county.get("Value")
+            for measure, key in MEASURES.items():
+                if measure in cells:
+                    value = number(str(cells[measure]["Value"]))
+                    if value is not None:
+                        # Mil (10 km) to km.
+                        counties.setdefault(code, {}).setdefault(year, {})[key] = round(value * 10)
     return counties, labels
 
 
@@ -77,15 +95,16 @@ def main():
     output = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
 
     try:
-        source_url, result = fetch()
+        results = fetch()
     except urllib.error.HTTPError as error:
         sys.exit(f"Trafikanalys returned HTTP {error.code}: {error.read().decode('utf-8', 'replace')}")
     except urllib.error.URLError as error:
         sys.exit(f"Could not reach Trafikanalys: {error.reason}")
 
-    counties, labels = parse(result)
-    if not counties:
-        sys.exit(f"Trafikanalys returned no county data; first row: {result.get('Rows', [None])[:1]}")
+    if not results:
+        sys.exit("Trafikanalys returned no county data")
+    source_url, result = results[0]
+    counties, labels = parse(results)
     years = sorted({year for by_year in counties.values() for year in by_year})
     print(f"Trafikanalys has {len(counties)} counties, {years[0]}-{years[-1]}: {labels}")
 
