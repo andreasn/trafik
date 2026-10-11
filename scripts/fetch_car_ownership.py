@@ -104,8 +104,8 @@ def main():
     payload = {
         "title": "Passenger cars in traffic per 1,000 inhabitants in Sweden's municipalities, end of year",
         "unit": "cars per 1,000 inhabitants",
-        "source": "RUS (the county administrative boards' environmental objectives site), Körsträckor table 1: "
-                  "Bilinnehav per 1000 invånare, from Statistics Sweden (SCB)",
+        "source": "RUS (länsstyrelsernas webbplats för miljömålen), Körsträckor tabell 1: "
+                  "Bilinnehav per 1000 invånare, från Statistiska centralbyrån (SCB)",
         "sourceUrl": url,
         "retrieved": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "years": [int(year) for year in years],

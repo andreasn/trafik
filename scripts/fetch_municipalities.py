@@ -206,8 +206,8 @@ def main():
 
     payload = {
         "title": "Population of Sweden's municipalities, 31 December",
-        "source": "Statistics Sweden (SCB), " + "; ".join(
-            f"table {table['id']}: {table['label']}" for table, _, _ in sources
+        "source": "Statistiska centralbyrån (SCB), " + "; ".join(
+            f"tabell {table['id']}: {table['label']}" for table, _, _ in sources
         ),
         "sources": [
             {"table": table["id"], "label": table["label"], "url": url, "years": [int(year) for year in years]}

@@ -3,7 +3,7 @@
 // and data/historical_traffic.json (SIKA, for the years before Trafikanalys's
 // series), all but the last fetched by the scripts in scripts/.
 
-const number = new Intl.NumberFormat("en-GB");
+const number = new Intl.NumberFormat("sv-SE");
 
 async function load() {
   const load = (url) => fetch(url).then((response) => {
@@ -70,14 +70,14 @@ async function load() {
 
   const older = olderYears.filter((year) => rows.some((row) => row.year === year && row.km !== null));
   document.getElementById("cars-source").textContent =
-    "Cars in traffic are counted at the end of December; population on 31 December. " +
-    "Distance driven is all vehicle types together, in Swedish mil (1 mil = 10 km)" +
+    "Personbilar i trafik räknas i slutet av december, folkmängden den 31 december. " +
+    "Körsträckan avser alla fordonsslag tillsammans, i mil (1 mil = 10 km)" +
     (older.length
-      ? `. Trafikanalys's series starts in ${firstKmYear}, so ${older.join(", ")} are from SIKA's historical series, ` +
-        `whose ${firstKmYear} total is the same as Trafikanalys's. `
+      ? `. Trafikanalys serie börjar ${firstKmYear}, så ${joinSwedish(older)} kommer från SIKA:s historiska serie, ` +
+        `vars siffra för ${firstKmYear} är densamma som Trafikanalys. `
       : ". ") +
-    `Sources: ${cars.source} (retrieved ${cars.retrieved}); ${population.source} (retrieved ${population.retrieved}); ` +
-    `${traffic.source} (retrieved ${traffic.retrieved})` +
+    `Källor: ${cars.source} (hämtad ${cars.retrieved}); ${population.source} (hämtad ${population.retrieved}); ` +
+    `${traffic.source} (hämtad ${traffic.retrieved})` +
     (older.length ? `; ${historical.source}.` : ".");
 }
 
@@ -85,5 +85,5 @@ load().catch((error) => {
   const status = document.getElementById("cars-status");
   status.hidden = false;
   status.textContent =
-    `Could not load the data (${error.message}). If you opened the file directly, serve the site with "python3 -m http.server".`;
+    `Kunde inte läsa in data (${error.message}). Om du öppnade filen direkt, starta en webbserver med "python3 -m http.server".`;
 });

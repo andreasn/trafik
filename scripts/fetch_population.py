@@ -152,7 +152,7 @@ def main():
 
     payload = {
         "title": "Population of Sweden, 31 December",
-        "source": f"Statistics Sweden (SCB), table {table['id']}: {table['label']}",
+        "source": f"Statistiska centralbyrån (SCB), tabell {table['id']}: {table['label']}",
         "sourceUrl": source_url,
         "retrieved": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "data": rows,

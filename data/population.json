@@ -1,6 +1,6 @@
 {
   "title": "Population of Sweden, 31 December",
-  "source": "Statistics Sweden (SCB), table TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
+  "source": "Statistiska centralbyrån (SCB), tabell TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
   "sourceUrl": "https://statistikdatabasen.scb.se/api/v2/tables/TAB4365/data",
   "retrieved": "2026-10-11",
   "data": [
