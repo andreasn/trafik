@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Traffic Data Sweden</title>
+  <title>Trafikdata Sverige</title>
   <link rel="stylesheet" href="style.css">
   <script src="tables.js" defer></script>
   <script src="cars.js" defer></script>
@@ -11,40 +11,40 @@
 </head>
 <body>
   <main>
-    <h1>Traffic Data Sweden</h1>
+    <h1>Trafikdata Sverige</h1>
 
     <!-- Sweden as a whole is shown first; picking a municipality swaps in its table. -->
     <div class="pickers">
       <label class="picker">
-        Show data for
+        Visa data för
         <select id="municipality-select">
-          <option value="sweden">Sweden (whole country)</option>
+          <option value="sweden">Hela Sverige</option>
         </select>
       </label>
       <label class="picker">
-        Search
-        <input type="search" id="municipality-search" list="municipality-names" placeholder="Type a name, e.g. Kiruna" autocomplete="off">
+        Sök
+        <input type="search" id="municipality-search" list="municipality-names" placeholder="Skriv ett namn, t.ex. Kiruna" autocomplete="off">
       </label>
       <datalist id="municipality-names"></datalist>
     </div>
 
     <section id="sweden-section" aria-labelledby="cars-heading">
-      <h2 id="cars-heading">Cars, population and distance driven in Sweden, 1975&#8288;–&#8288;2025</h2>
-      <p id="cars-status" class="lead">Loading data from Statistics Sweden and Trafikanalys…</p>
+      <h2 id="cars-heading">Bilar, befolkning och körsträcka i Sverige, 1975&#8288;–&#8288;2025</h2>
+      <p id="cars-status" class="lead">Hämtar data från SCB och Trafikanalys…</p>
 
       <fieldset class="column-toggles" data-table="cars-table">
-        <legend>Show columns</legend>
+        <legend>Visa kolumner</legend>
       </fieldset>
       <div class="scroll">
         <table id="cars-table" aria-labelledby="cars-heading">
           <thead>
             <tr>
-              <th scope="col">Year</th>
-              <th scope="col" class="number" data-toggle>Cars in traffic</th>
-              <th scope="col" class="number" data-toggle>Population</th>
-              <th scope="col" class="number">Cars per 1,000</th>
-              <th scope="col" class="number" data-toggle>Vehicle-mil (millions)</th>
-              <th scope="col" class="number">Mil per inhabitant</th>
+              <th scope="col">År</th>
+              <th scope="col" class="number" data-toggle>Personbilar i trafik</th>
+              <th scope="col" class="number" data-toggle>Folkmängd</th>
+              <th scope="col" class="number">Bilar per 1&nbsp;000 invånare</th>
+              <th scope="col" class="number" data-toggle>Fordonsmil (miljoner)</th>
+              <th scope="col" class="number">Mil per invånare</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -52,28 +52,28 @@
       </div>
 
       <details class="about">
-        <summary>About the data and sources</summary>
+        <summary>Om data och källor</summary>
         <p class="source" id="cars-source"></p>
       </details>
     </section>
 
     <section id="municipality-section" aria-labelledby="municipalities-heading" hidden>
-      <h2 id="municipalities-heading">Cars, population and distance driven by municipality, 1975&#8288;–&#8288;2025</h2>
+      <h2 id="municipalities-heading">Bilar, befolkning och körsträcka per kommun, 1975&#8288;–&#8288;2025</h2>
       <fieldset class="column-toggles" data-table="municipality-table">
-        <legend>Show columns</legend>
+        <legend>Visa kolumner</legend>
       </fieldset>
       <div class="scroll">
         <table id="municipality-table" aria-labelledby="municipalities-heading">
           <thead>
             <tr>
-              <th scope="col">Year</th>
-              <th scope="col" class="number" data-toggle>Cars in traffic</th>
-              <th scope="col" class="number" data-toggle>Population</th>
-              <th scope="col" class="number">Cars per 1,000</th>
-              <th scope="col" class="number" data-toggle="Comparison with Sweden">Cars per 1,000 vs Sweden</th>
-              <th scope="col" class="number" data-toggle>Car-mil (millions)</th>
-              <th scope="col" class="number">Mil per inhabitant</th>
-              <th scope="col" class="number" data-toggle="Comparison with Sweden">Mil per inhabitant vs Sweden</th>
+              <th scope="col">År</th>
+              <th scope="col" class="number" data-toggle>Personbilar i trafik</th>
+              <th scope="col" class="number" data-toggle>Folkmängd</th>
+              <th scope="col" class="number">Bilar per 1&nbsp;000 invånare</th>
+              <th scope="col" class="number" data-toggle="Jämförelse med riket">Bilar per 1&nbsp;000 jämfört med riket</th>
+              <th scope="col" class="number" data-toggle>Personbilsmil (miljoner)</th>
+              <th scope="col" class="number">Mil per invånare</th>
+              <th scope="col" class="number" data-toggle="Jämförelse med riket">Mil per invånare jämfört med riket</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -81,7 +81,7 @@
       </div>
 
       <details class="about">
-        <summary>About the data and sources</summary>
+        <summary>Om data och källor</summary>
         <p class="source" id="municipality-source"></p>
       </details>
     </section>

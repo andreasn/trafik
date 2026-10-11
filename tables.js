@@ -2,18 +2,24 @@
 // that show or hide the optional columns.
 
 // Bolds the highest number in each column of a table body, comparing the
-// numbers as displayed (thousands separators, % signs and the * on
-// estimates are ignored), so values that look equal are all bolded. The first column is
-// the year and is skipped.
+// numbers as displayed in Swedish format (spaces as thousands separators, a
+// decimal comma, "−" for minus; % signs and the * on estimates are ignored),
+// so values that look equal are all bolded. The first column is the year and
+// is skipped.
 function boldHighest(body) {
   const rows = [...body.rows];
   const columns = rows[0]?.cells.length ?? 0;
   for (let column = 1; column < columns; column++) {
     const cells = rows.map((row) => row.cells[column]);
-    const values = cells.map((cell) => Number.parseFloat(cell.textContent.replace(/[,*%\s]/g, "").replace("−", "-")));
+    const values = cells.map((cell) => Number.parseFloat(cell.textContent.replace(/[*%\s]/g, "").replace(",", ".").replace("−", "-")));
     const highest = Math.max(...values.filter(Number.isFinite));
     cells.forEach((cell, i) => cell.classList.toggle("highest", values[i] === highest));
   }
+}
+
+// "1975, 1980 och 1985": a list joined the Swedish way.
+function joinSwedish(items) {
+  return items.length > 1 ? `${items.slice(0, -1).join(", ")} och ${items.at(-1)}` : items.join("");
 }
 
 // Fills each "Show columns" fieldset with a checkbox per heading marked

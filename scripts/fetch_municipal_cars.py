@@ -155,7 +155,7 @@ def main():
 
     payload = {
         "title": "Passenger cars in traffic in Sweden's municipalities, end of year",
-        "source": f"Statistics Sweden (SCB), table {table['id']}: {table['label']}",
+        "source": f"Statistiska centralbyrån (SCB), tabell {table['id']}: {table['label']}",
         "sourceUrl": source_url,
         "retrieved": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "years": [int(year) for year in YEARS],

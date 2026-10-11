@@ -1,11 +1,14 @@
 # Trafik
 
-A website for traffic data in Sweden.
+A website for traffic data in Sweden. The site itself is in Swedish (*Trafikdata
+Sverige*), with Swedish number formatting; the data files' `source` fields are
+in Swedish too, as the site shows them.
 
-The front page has a "Show data for" dropdown at the top. It starts on Sweden
-(whole country), which shows one table for 1975–2025 in five-year intervals:
-passenger cars in traffic, population, cars per 1,000 inhabitants (so growth
-isn't just population growth), and the distance driven on Swedish roads in
+The front page has a "Visa data för" (show data for) dropdown at the top. It
+starts on "Hela Sverige" (all of Sweden), which shows one table for 1975–2025
+in five-year intervals: passenger cars in traffic, population, cars per 1,000
+inhabitants (so growth isn't just population growth), and the distance driven
+on Swedish roads in
 Swedish mil (10 km): millions of vehicle-mil in total and mil per inhabitant.
 (Trafikanalys gives the total in km and averages in mil; the site uses mil
 throughout.) Trafikanalys's distance series starts in 1990, so 1975–1985 come
@@ -55,7 +58,7 @@ The file looks like this:
 ```json
 {
   "title": "Population of Sweden, 31 December",
-  "source": "Statistics Sweden (SCB), table TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
+  "source": "Statistiska centralbyrån (SCB), tabell TAB4365: Befolkningsutvecklingen i riket efter kön. År 1749-2025",
   "retrieved": "2026-10-10",
   "data": [{ "year": 1975, "population": 8208442 }, ...]
 }
@@ -102,7 +105,7 @@ like this:
 ```json
 {
   "title": "Population of Sweden's municipalities, 31 December",
-  "source": "Statistics Sweden (SCB), table ...",
+  "source": "Statistiska centralbyrån (SCB), tabell ...",
   "retrieved": "2026-10-10",
   "years": [1975, 1980, ...],
   "sweden": { "1975": 8208442, ..., "2025": 10605529 },

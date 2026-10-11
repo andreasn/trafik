@@ -16,7 +16,7 @@ async function loadMunicipalities() {
   const names = document.getElementById("municipality-names");
   const body = document.querySelector("#municipality-table tbody");
   const source = document.getElementById("municipality-source");
-  const number = new Intl.NumberFormat("en-GB");
+  const number = new Intl.NumberFormat("sv-SE");
 
   const load = (url) => fetch(url).then((response) => {
     if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
@@ -41,7 +41,7 @@ async function loadMunicipalities() {
       load("data/municipal_distance.json").catch(() => null),
     ]);
   } catch (error) {
-    source.textContent = `Could not load municipality data (${error.message}).`;
+    source.textContent = `Kunde inte läsa in kommundata (${error.message}).`;
     source.closest("details")?.setAttribute("open", "");
     return;
   }
@@ -52,7 +52,7 @@ async function loadMunicipalities() {
   // other years are estimated below.
   const officialKm = new Map((official?.data ?? []).map((m) => [m.code, m.kmPerInhabitant]));
   const officialYears = (official?.years ?? []).map(String);
-  const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const oneDecimal = new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // SCB counts cars per municipality from 2002 (baseYear is the first table
   // year with counts). Before that, RUS has SCB's cars per 1,000 inhabitants
@@ -139,7 +139,7 @@ async function loadMunicipalities() {
   }
   // Years where the county weighting is used, i.e. not replaced by official figures.
   const countyYears = Object.keys(distance?.countyKmPerCar ?? {}).filter((year) => !officialYears.includes(year)).sort();
-  const list = (years) => years.join(", ");
+  const list = joinSwedish;
 
   // Sweden's averages to compare each municipality with: cars per inhabitant
   // and passenger-car km per inhabitant (the national distance the estimates
@@ -147,51 +147,51 @@ async function loadMunicipalities() {
   const swedenPeople = (year) => population.sweden?.[year];
   const swedenCarsPerPerson = (year) => (nationalCars.get(String(year)) ?? 0) / (swedenPeople(year) || Infinity);
   const swedenKmPerPerson = (year) => (swedenCarKm[year] ?? 0) / (swedenPeople(year) || Infinity);
-  const percent = new Intl.NumberFormat("en-GB", { style: "percent", signDisplay: "exceptZero" });
-  // "+12%" or "−8%" from a municipality's figure and Sweden's.
+  const percent = new Intl.NumberFormat("sv-SE", { style: "percent", signDisplay: "exceptZero" });
+  // "+12 %" or "−8 %" from a municipality's figure and Sweden's.
   const versus = (value, average) => (value != null && average ? percent.format(value / average - 1).replace("-", "−") : null);
 
   source.textContent =
     (baseYear
-      ? "Cars in traffic are SCB's count from " + baseYear +
+      ? "Personbilar i trafik är SCB:s antal från " + baseYear +
         (ownershipYears.length
-          ? ` and for ${list(ownershipYears)} RUS's figure of cars per 1,000 inhabitants (from SCB) times the population`
+          ? ` och för ${list(ownershipYears)} RUS:s uppgift om bilar per 1 000 invånare (från SCB) gånger folkmängden`
           : "") +
-        ". * Estimate: for other years, Sweden's passenger cars are shared out by each municipality's population " +
-        "times its cars per inhabitant, interpolated between the nearest years with figures. "
+        ". * Uppskattning: för övriga år fördelas Sveriges personbilar efter varje kommuns folkmängd gånger " +
+        "dess bilar per invånare, interpolerat mellan de närmaste åren med uppgifter. "
       : "") +
     (distance
       ? (officialYears.length
-          ? `Distance driven by passenger cars for ${list(officialYears)} is Trafikanalys's figure per municipality ` +
-            "(published through Kolada): cars registered in the municipality, wherever they were driven, with company " +
-            "cars counted where the company is registered. "
+          ? `Körsträckan med personbil för ${list(officialYears)} är Trafikanalys siffra per kommun ` +
+            "(publicerad via Kolada): bilar registrerade i kommunen, oavsett var de körts, där företagsbilar räknas " +
+            "till den kommun där företaget är registrerat. "
           : "") +
-        `* Estimate: ${officialYears.length ? "for other years" : "Trafikanalys doesn't publish distance driven per municipality, so"} ` +
-        "Sweden's passenger-car distance is shared out by the municipality's passenger cars" +
-        (countyYears.length ? `, weighted for ${list(countyYears)} by its county's average distance per car` : "") +
+        `* Uppskattning: ${officialYears.length ? "för övriga år" : "Trafikanalys redovisar inte körsträcka per kommun, så"} ` +
+        "fördelas Sveriges körsträcka med personbil efter kommunens personbilar" +
+        (countyYears.length ? `, för ${list(countyYears)} viktade med länets genomsnittliga körsträcka per bil` : "") +
         ". " +
         (scaledYears.length
-          ? `Before ${firstKmYear}, Sweden's passenger-car distance is ${firstKmYear}'s figure scaled by SIKA's historical series. `
+          ? `Före ${firstKmYear} är Sveriges körsträcka med personbil ${firstKmYear} års siffra skalad med SIKA:s historiska serie. `
           : "")
       : "") +
-    "The “vs Sweden” columns compare the municipality with Sweden as a whole: cars per inhabitant with " +
-    "Sweden's passenger cars per inhabitant, and distance per inhabitant with Sweden's passenger-car distance per " +
-    "inhabitant; +12% means 12% above Sweden's average. Distances are in Swedish mil (1 mil = 10 km). " +
-    "A dash means there is no figure: some municipalities were formed after 1975. " +
-    "Cars in traffic at the end of the year; population on 31 December. " +
-    (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
-    (ownershipYears.length ? `${ownership.source} (retrieved ${ownership.retrieved}); ` : "") +
-    (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
+    "Kolumnerna ”jämfört med riket” jämför kommunen med hela Sverige: bilar per invånare med Sveriges " +
+    "personbilar per invånare, och körsträcka per invånare med Sveriges körsträcka med personbil per invånare; " +
+    "+12 % betyder 12 % över rikets genomsnitt. Sträckor anges i mil (1 mil = 10 km). " +
+    "Ett streck betyder att uppgift saknas: vissa kommuner bildades efter 1975. " +
+    "Personbilar i trafik vid årets slut, folkmängd den 31 december. " +
+    (cars ? `Källor: ${cars.source} (hämtad ${cars.retrieved}); ` : "Källor: ") +
+    (ownershipYears.length ? `${ownership.source} (hämtad ${ownership.retrieved}); ` : "") +
+    (distance ? `${distance.source} (hämtad ${distance.retrieved}); ` : "") +
     (scaledYears.length ? `${historical.source}; ` : "") +
-    (officialYears.length ? `${official.source} (retrieved ${official.retrieved}); ` : "") +
-    `${population.source} (retrieved ${population.retrieved}).`;
+    (officialYears.length ? `${official.source} (hämtad ${official.retrieved}); ` : "") +
+    `${population.source} (hämtad ${population.retrieved}).`;
 
   // One group per county, both in Swedish alphabetical order.
   const byName = (a, b) => a.localeCompare(b, "sv");
   const counties = [...new Set(population.data.map((m) => m.county ?? ""))].sort(byName);
   for (const county of counties) {
     const group = document.createElement("optgroup");
-    group.label = county || "Other";
+    group.label = county || "Övrigt";
     population.data
       .filter((m) => (m.county ?? "") === county)
       .sort((a, b) => byName(a.name, b.name))
@@ -210,7 +210,7 @@ async function loadMunicipalities() {
     const carCounts = carsByCode.get(code) ?? {};
     const place = municipality.county ? `${municipality.name}, ${municipality.county}` : municipality.name;
     // The word joiners (\u2060) keep the year range on one line.
-    heading.textContent = `Cars, population and distance driven in ${place}, 1975\u2060–\u20602025`;
+    heading.textContent = `Bilar, befolkning och körsträcka i ${place}, 1975\u2060–\u20602025`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
       const counted = carCounts[year] ?? ownershipCars(code, year);
@@ -246,7 +246,7 @@ async function loadMunicipalities() {
           cell.textContent = typeof value === "string" ? value : number.format(value);
           if (estimate) {
             const mark = document.createElement("abbr");
-            mark.title = "Estimate";
+            mark.title = "Uppskattning";
             mark.textContent = "*";
             cell.append(mark);
           }
@@ -270,12 +270,12 @@ async function loadMunicipalities() {
   // list). Picking a suggestion, or pressing Enter, shows the best match;
   // accents and case are ignored, so "malmo" finds Malmö.
   const plain = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
-  // Sweden can be searched for too, in English or Swedish.
-  const sweden = { code: SWEDEN, name: "Sweden (whole country)", county: "" };
+  // Sweden can be searched for too, in Swedish or English.
+  const sweden = { code: SWEDEN, name: "Hela Sverige", county: "" };
   const listed = [sweden, ...[...population.data].sort((a, b) => byName(a.name, b.name))];
   const byPlainName = [
     ...listed.map((m) => [plain(m.name), m]),
-    ...["Sweden", "Sverige"].map((name) => [plain(name), sweden]),
+    ...["Sverige", "Riket", "Sweden"].map((name) => [plain(name), sweden]),
   ];
   names.replaceChildren(...listed.map((m) => {
     const option = new Option(m.name);

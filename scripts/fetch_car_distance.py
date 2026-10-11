@@ -197,7 +197,7 @@ def main():
 
     payload = {
         "title": "Distance driven by passenger cars: Sweden's total and county averages",
-        "source": "Trafikanalys, Trafikarbete (t04010, passenger cars) and Körsträckor table RS1",
+        "source": "Trafikanalys, Trafikarbete (t04010, personbilar) och Körsträckor tabell RS1",
         "sourceUrl": api_url,
         "retrieved": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "swedenCarKmMillions": {year: national[year] for year in YEARS if year in national},
