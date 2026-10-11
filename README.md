@@ -20,6 +20,8 @@ driven by its passenger cars. It is drawn by `municipalities.js` from
 `data/car_distance.json`. The address keeps the
 municipality code, so for example `#0180` opens Stockholm.
 
+In both tables the highest number in each column is bold (`tables.js`).
+
 No build step is needed. Browsers block loading the data files on pages opened
 straight from disk, so serve the folder to view it, for example with
 `python3 -m http.server`, then open http://localhost:8000.
