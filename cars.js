@@ -57,7 +57,8 @@ async function load() {
         `up from ${oneDecimal.format(firstDriven.km / 1e9)} billion km in ${firstDriven.year}.`
       : "");
 
-  document.querySelector("#cars-table tbody").replaceChildren(...rows.map((row) => {
+  const tableBody = document.querySelector("#cars-table tbody");
+  tableBody.replaceChildren(...rows.map((row) => {
     const tr = document.createElement("tr");
     // The last two columns are estimates before 1990; those cells get an asterisk.
     const cells = [
@@ -83,6 +84,7 @@ async function load() {
     });
     return tr;
   }));
+  boldHighest(tableBody);
 
   const estimates = rows.filter((row) => row.estimated).map((row) => row.year);
   document.getElementById("cars-source").textContent =

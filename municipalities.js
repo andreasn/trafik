@@ -169,6 +169,7 @@ async function loadMunicipalities() {
       }
       return tr;
     }));
+    boldHighest(body);
   }
 
   const fromHash = () => location.hash.slice(1);

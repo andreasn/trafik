@@ -155,3 +155,8 @@ td abbr[title] {
   text-decoration: none;
   cursor: help;
 }
+
+/* The highest number in each column. */
+td.highest {
+  font-weight: 700;
+}
