@@ -136,6 +136,16 @@ async function loadMunicipalities() {
   const countyYears = Object.keys(distance?.countyKmPerCar ?? {}).filter((year) => !officialYears.includes(year)).sort();
   const list = (years) => years.join(", ");
 
+  // Sweden's averages to compare each municipality with: cars per inhabitant
+  // and passenger-car km per inhabitant (the national distance the estimates
+  // share out, so it matches the municipal figures' scope).
+  const swedenPeople = (year) => population.sweden?.[year];
+  const swedenCarsPerPerson = (year) => (nationalCars.get(String(year)) ?? 0) / (swedenPeople(year) || Infinity);
+  const swedenKmPerPerson = (year) => (swedenCarKm[year] ?? 0) / (swedenPeople(year) || Infinity);
+  const percent = new Intl.NumberFormat("en-GB", { style: "percent", signDisplay: "exceptZero" });
+  // "+12%" or "−8%" from a municipality's figure and Sweden's.
+  const versus = (value, average) => (value != null && average ? percent.format(value / average - 1).replace("-", "−") : null);
+
   source.textContent =
     (baseYear
       ? "Cars in traffic are SCB's count from " + baseYear +
@@ -159,6 +169,9 @@ async function loadMunicipalities() {
           ? `Before ${firstKmYear}, Sweden's passenger-car distance is ${firstKmYear}'s figure scaled by SIKA's historical series. `
           : "")
       : "") +
+    "The “vs Sweden” columns compare the municipality with Sweden as a whole: cars per inhabitant with " +
+    "Sweden's passenger cars per inhabitant, and km per inhabitant with Sweden's passenger-car km per inhabitant; " +
+    "+12% means 12% above Sweden's average. " +
     "A dash means there is no figure: some municipalities were formed after 1975. " +
     "Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
@@ -206,8 +219,10 @@ async function loadMunicipalities() {
         { value: vehicles, estimate: carsEstimated },
         { value: people },
         { value: perThousand, estimate: carsEstimated },
+        { value: versus(people && vehicles != null ? vehicles / people : null, swedenCarsPerPerson(year)), estimate: carsEstimated },
         { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: !kmOfficial },
         { value: kmPerPerson, estimate: !kmOfficial },
+        { value: versus(km != null && people ? km / people : null, swedenKmPerPerson(year)), estimate: !kmOfficial },
       ];
       for (const { value, estimate } of cells) {
         const cell = document.createElement("td");
