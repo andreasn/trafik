@@ -13,6 +13,43 @@ const SWEDEN = "sweden";
 // Kalmar län" where Kolada has "Region Kalmar". On Gotland the municipality
 // itself is the region.
 const GOTLAND = "0980";
+
+// Municipalities split off another after 1974, by code: the municipality
+// they were part of and the first year on their own (SCB's list of
+// municipal changes). SCB gives their population for the earlier years too,
+// but RUS counts their cars in the other municipality, against that
+// municipality's population alone.
+const SPLITS = {
+  "0117": ["0187", 1983], // Österåker from Vaxholm
+  "0128": ["0127", 1983], // Salem from Botkyrka
+  "0584": ["0583", 1980], // Vadstena from Motala
+  "1445": ["1470", 1983], // Essunga from Vara
+  "2403": ["2460", 1983], // Bjurholm from Vännäs
+  "2418": ["2417", 1983], // Malå from Norsjö
+  "2425": ["2463", 1980], // Dorotea from Åsele
+};
+
+// A note under the table for municipalities where company cars, counted
+// where the company is registered, inflate the figures. Shares are from
+// RUS table 1 ("därav företagsbilar"), which has them for 1990-2012.
+const COMPANY_CARS = {
+  "0180": "Bilar räknas i den kommun där ägaren är registrerad, och många företag har sitt huvudkontor i " +
+    "Stockholm. Omkring 4 av 10 personbilar var företagsbilar (39 % år 2000, riket 19 %), så bilar per 1\u00a0000 " +
+    "invånare och mil per invånare är högre än vad invånarna själva äger och kör.",
+  "0182": "Bilar räknas i den kommun där ägaren är registrerad, och i Nacka är många bilar registrerade på " +
+    "företag: 42 % av personbilarna år 2012 (riket 22 %). Bilar per 1\u00a0000 invånare och mil per invånare är " +
+    "därför högre än vad invånarna själva äger och kör.",
+  "0184": "Bilar räknas i den kommun där ägaren är registrerad, och många företag har sitt huvudkontor i Solna. " +
+    "År 2010 var 65 % av personbilarna företagsbilar (riket 20 %). Utan dem hade Solna haft omkring 240 bilar " +
+    "per 1\u00a0000 invånare i stället för 670, och mil per invånare är på samma sätt kraftigt uppblåst.",
+  "1281": "Bilar räknas i den kommun där ägaren är registrerad, och i Lund var många bilar registrerade på " +
+    "företag: 40 % av personbilarna år 2012 (riket 22 %). Under 2024 bytte ett stort antal företagsbilar " +
+    "registreringsort från Lund (enligt RUS till Täby), så antalet bilar föll från 65 323 år 2020 till 46 153 " +
+    "år 2025. Siffrorna före 2025 är därför högre än vad invånarna själva äger och kör.",
+  "1402": "Bilar räknas i den kommun där ägaren är registrerad. Runt år 2000 var många bilar i Partille " +
+    "registrerade på företag (35 % år 2000, riket 19 %), vilket höjer bilar per 1\u00a0000 invånare och mil per " +
+    "invånare för de åren.",
+};
 const REGIONS = {
   "01": "Region Stockholm",
   "03": "Region Uppsala",
@@ -42,6 +79,7 @@ async function loadMunicipalities() {
   const swedenSection = document.getElementById("sweden-section");
   const municipalitySection = document.getElementById("municipality-section");
   const heading = document.getElementById("municipalities-heading");
+  const companyNote = document.getElementById("company-note");
   const search = document.getElementById("municipality-search");
   const names = document.getElementById("municipality-names");
   const body = document.querySelector("#municipality-table tbody");
@@ -77,7 +115,7 @@ async function loadMunicipalities() {
   }
   const byCode = new Map(population.data.map((m) => [m.code, m]));
   const carsByCode = new Map((cars?.data ?? []).map((m) => [m.code, m.cars]));
-  const ratesByCode = new Map((ownership?.data ?? []).map((m) => [m.code, m.carsPerThousand]));
+  const ratesByCode = new Map((ownership?.data ?? []).map((m) => [m.code, { ...m.carsPerThousand }]));
   // Trafikanalys's own per-municipality figures (via Kolada) where published;
   // other years are estimated below.
   const officialKm = new Map((official?.data ?? []).map((m) => [m.code, m.kmPerInhabitant]));
@@ -89,8 +127,29 @@ async function loadMunicipalities() {
   // for some years, which times the population gives the cars.
   const carYears = [...new Set([...carsByCode.values()].flatMap((counts) => Object.keys(counts)))].sort();
   const baseYear = carYears.find((year) => [...carsByCode.values()].some((counts) => counts[year]));
+  // Where a municipality was part of another (SPLITS), RUS's rate is both
+  // municipalities' cars over the larger one's population. Both get the
+  // combined rate instead, from SCB's population for the nearest table year,
+  // and their cars for that year count as estimates.
+  const nearestPeople = (code, year) => {
+    const nearest = population.years.reduce((a, b) => (Math.abs(b - year) < Math.abs(a - year) ? b : a));
+    return byCode.get(code)?.population[String(nearest)];
+  };
+  const pooled = new Set();
+  for (const [child, [parent, separate]] of Object.entries(SPLITS)) {
+    const rates = ratesByCode.get(parent) ?? {};
+    for (const [year, rate] of Object.entries(rates)) {
+      const together = nearestPeople(parent, Number(year));
+      const apart = nearestPeople(child, Number(year));
+      if (Number(year) >= separate || rate == null || ratesByCode.get(child)?.[year] != null || !together || !apart) continue;
+      const combined = (rate * together) / (together + apart);
+      rates[year] = combined;
+      (ratesByCode.get(child) ?? ratesByCode.set(child, {}).get(child))[year] = combined;
+      pooled.add(`${parent}:${year}`).add(`${child}:${year}`);
+    }
+  }
   const ownershipCars = (code, year) => {
-    const rate = String(year) < baseYear ? ratesByCode.get(code)?.[year] : null;
+    const rate = String(year) < baseYear && !pooled.has(`${code}:${year}`) ? ratesByCode.get(code)?.[year] : null;
     const people = byCode.get(code)?.population[year];
     return rate != null && people ? Math.round((rate * people) / 1000) : null;
   };
@@ -207,6 +266,8 @@ async function loadMunicipalities() {
     "Kolumnerna ”jämfört med riket” jämför kommunen med hela Sverige: bilar per invånare med Sveriges " +
     "personbilar per invånare, och körsträcka per invånare med Sveriges körsträcka med personbil per invånare; " +
     "+12 % betyder 12 % över rikets genomsnitt. Sträckor anges i mil (1 mil = 10 km). " +
+    "För år då en kommun ingick i en annan (till exempel Österåker i Vaxholm 1974–1982) delas båda " +
+    "kommunernas bilar efter folkmängd, och de åren räknas som uppskattningar. " +
     "Ett streck betyder att uppgift saknas: vissa kommuner bildades efter 1975. " +
     "Personbilar i trafik vid årets slut, folkmängd den 31 december. " +
     (cars ? `Källor: ${cars.source} (hämtad ${cars.retrieved}); ` : "Källor: ") +
@@ -231,6 +292,9 @@ async function loadMunicipalities() {
     if (code === SWEDEN) return;
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
+    companyNote.hidden = !COMPANY_CARS[code];
+    document.getElementById("company-note-text").textContent =
+      COMPANY_CARS[code] ? `${COMPANY_CARS[code]} Källa: RUS tabell 1 (därav företagsbilar).` : "";
     const region = regionOf(municipality);
     // On Gotland the municipality is Region Gotland, so the region isn't repeated.
     const place = region && code !== GOTLAND ? `${municipality.name}, ${region}` : municipality.name;

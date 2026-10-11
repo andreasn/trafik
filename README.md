@@ -155,6 +155,20 @@ the years before 2003 to `data/car_ownership.json`:
 python3 scripts/fetch_car_ownership.py
 ```
 
+Seven municipalities split off another after 1974 (Österåker from Vaxholm,
+Salem from Botkyrka, Essunga from Vara, Malå from Norsjö and Bjurholm from
+Vännäs in 1983; Vadstena from Motala and Dorotea from Åsele in 1980, according
+to SCB's list of municipal changes). SCB gives their population for the
+earlier years, but RUS counts their cars in the municipality they were part
+of, against that municipality's population alone; Vaxholm's 1980 rate is
+1,942 per 1,000. For those years both municipalities get the combined rate
+and their cars count as estimates (`SPLITS` in `municipalities.js`).
+
+Where company cars, which count where the company is registered, clearly
+inflate a municipality's figures (Solna, Stockholm, Nacka, Lund and Partille,
+by RUS's "därav företagsbilar"), a note under its table says so
+(`COMPANY_CARS` in `municipalities.js`).
+
 The site multiplies a rate by the municipality's population to get its cars
 in traffic, which for Sweden as a whole lands within 0.03% of SCB's count.
 Municipalities that didn't exist yet in a year have no figure (`null`); 268
