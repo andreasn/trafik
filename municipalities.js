@@ -38,6 +38,7 @@ async function loadMunicipalities() {
     ]);
   } catch (error) {
     source.textContent = `Could not load municipality data (${error.message}).`;
+    source.closest("details")?.setAttribute("open", "");
     return;
   }
   const byCode = new Map(population.data.map((m) => [m.code, m]));

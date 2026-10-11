@@ -90,6 +90,21 @@ tbody th {
   font-size: 0.85rem;
 }
 
+/* The explanations under each table, collapsed until opened. */
+.about {
+  margin-top: 0.75rem;
+}
+
+.about summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.about .source {
+  margin-top: 0.5rem;
+}
+
 /* The national table has six columns: headings wrap and, on narrow screens,
    the table scrolls sideways with the year and caption kept in view. */
 .scroll {
