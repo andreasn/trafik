@@ -58,7 +58,7 @@ async function load() {
       : ".") +
     (firstDriven && last.km
       ? ` Vehicles drove ${oneDecimal.format(last.km / 1e9)} billion km on Swedish roads in ${last.year}, ` +
-        `${number.format(Math.round(last.kmPerPerson))} km per inhabitant, ` +
+        `${number.format(Math.round(last.kmPerPerson / 10))} mil (${number.format(Math.round(last.kmPerPerson))} km) per inhabitant, ` +
         `up from ${oneDecimal.format(firstDriven.km / 1e9)} billion km in ${firstDriven.year}.`
       : "");
 
@@ -71,7 +71,7 @@ async function load() {
       { text: row.population ? number.format(row.population) : null },
       { text: row.perThousand ? Math.round(row.perThousand) : null },
       { text: row.km ? oneDecimal.format(row.km / 1e9) : null },
-      { text: row.kmPerPerson ? number.format(Math.round(row.kmPerPerson)) : null },
+      { text: row.kmPerPerson ? number.format(Math.round(row.kmPerPerson / 10)) : null },
     ];
     cells.forEach(({ text }, i) => {
       const cell = document.createElement(i === 0 ? "th" : "td");
@@ -87,7 +87,7 @@ async function load() {
   const older = olderYears.filter((year) => rows.some((row) => row.year === year && row.km !== null));
   document.getElementById("cars-source").textContent =
     "Cars in traffic are counted at the end of December; population on 31 December. " +
-    "Distance driven is all vehicle types together" +
+    "Distance driven is all vehicle types together; per inhabitant it is in Swedish mil (1 mil = 10 km)" +
     (older.length
       ? `. Trafikanalys's series starts in ${firstKmYear}, so ${older.join(", ")} are from SIKA's historical series, ` +
         `whose ${firstKmYear} total is the same as Trafikanalys's. `
