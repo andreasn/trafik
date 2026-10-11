@@ -181,6 +181,11 @@ municipality's share is:
   inhabitant in 2005, which assumes its car ownership relative to other
   municipalities stayed as in 2005.
 
+Cars in traffic per municipality are official from 2005. For 1975–2000 they
+are estimated the same way: Sweden's passenger cars shared out by each
+municipality's population times its 2005 cars per inhabitant. These, and the
+cars per 1,000 derived from them, are marked with an asterisk too.
+
 Sweden's passenger-car distance itself is official from 1990. For 1975–1985 it
 is Sweden's passenger cars times the passenger-car km per car of 1990, as in the
 national table. Municipalities formed after 1975 have no estimate before they
