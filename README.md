@@ -16,10 +16,12 @@ from SIKA's historical series (see below). It is filled in by `cars.js` from
 `data/cars.json`, `data/population.json`, `data/traffic.json` and
 `data/historical_traffic.json`.
 
-Picking a municipality in the dropdown (grouped by county), or typing part of
-its name in the search box next to it (accents optional), swaps in a table like
-the national one for that municipality, with an estimate of the distance driven
-by its passenger cars. Two columns compare it with Sweden as a whole, as a
+Picking a municipality in the dropdown (in alphabetical order), or typing part
+of its name in the search box next to it (accents optional), swaps in a table
+like the national one for that municipality, with an estimate of the distance
+driven by its passenger cars. The heading names the municipality's region, as
+Kolada lists the 21 regions (`REGIONS` in `municipalities.js`), except Region
+Kalmar län, which Kolada shortens to Region Kalmar. Two columns compare it with Sweden as a whole, as a
 percentage above or below Sweden's cars per inhabitant and passenger-car
 distance per inhabitant. Estimates are marked with an asterisk. It is drawn by
 `municipalities.js` from `data/municipalities.json`,

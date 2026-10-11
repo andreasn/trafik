@@ -1,11 +1,41 @@
 // Shows one municipality's passenger cars, population and distance driven,
-// picked from a list grouped by county, in a table like the national one.
+// picked from an alphabetical list, in a table like the national one.
 // Reads the data files fetched by the scripts in scripts/: SCB's population and
 // cars, RUS's cars per 1,000 inhabitants for earlier years, Trafikanalys's
 // distance (per municipality via Kolada where published) and the inputs for
 // estimating the rest. The choice is kept in the address (#0180 for
 // Stockholm) so a link opens the same municipality.
 const SWEDEN = "sweden";
+
+// The region each municipality belongs to, by the first two digits of its
+// code (the county code). Names as Kolada (SKR's and the government's
+// database) lists the regions, except Kalmar, which calls itself "Region
+// Kalmar län" where Kolada has "Region Kalmar". On Gotland the municipality
+// itself is the region.
+const GOTLAND = "0980";
+const REGIONS = {
+  "01": "Region Stockholm",
+  "03": "Region Uppsala",
+  "04": "Region Sörmland",
+  "05": "Region Östergötland",
+  "06": "Region Jönköpings län",
+  "07": "Region Kronoberg",
+  "08": "Region Kalmar län",
+  "09": "Region Gotland",
+  "10": "Region Blekinge",
+  "12": "Region Skåne",
+  "13": "Region Halland",
+  "14": "Västra Götalandsregionen",
+  "17": "Region Värmland",
+  "18": "Region Örebro län",
+  "19": "Region Västmanland",
+  "20": "Region Dalarna",
+  "21": "Region Gävleborg",
+  "22": "Region Västernorrland",
+  "23": "Region Jämtland Härjedalen",
+  "24": "Region Västerbotten",
+  "25": "Region Norrbotten",
+};
 
 async function loadMunicipalities() {
   const select = document.getElementById("municipality-select");
@@ -186,18 +216,11 @@ async function loadMunicipalities() {
     (officialYears.length ? `${official.source} (hämtad ${official.retrieved}); ` : "") +
     `${population.source} (hämtad ${population.retrieved}).`;
 
-  // One group per county, both in Swedish alphabetical order.
+  // All municipalities in Swedish alphabetical order, after "Hela Sverige".
   const byName = (a, b) => a.localeCompare(b, "sv");
-  const counties = [...new Set(population.data.map((m) => m.county ?? ""))].sort(byName);
-  for (const county of counties) {
-    const group = document.createElement("optgroup");
-    group.label = county || "Övrigt";
-    population.data
-      .filter((m) => (m.county ?? "") === county)
-      .sort((a, b) => byName(a.name, b.name))
-      .forEach((m) => group.append(new Option(m.name, m.code)));
-    select.append(group);
-  }
+  const alphabetical = [...population.data].sort((a, b) => byName(a.name, b.name));
+  select.append(...alphabetical.map((m) => new Option(m.name, m.code)));
+  const regionOf = (m) => REGIONS[m.code.slice(0, 2)] ?? "";
 
   // "sweden" shows the national table (filled in by cars.js); a
   // municipality code shows that municipality's table instead.
@@ -208,7 +231,9 @@ async function loadMunicipalities() {
     if (code === SWEDEN) return;
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
-    const place = municipality.county ? `${municipality.name}, ${municipality.county}` : municipality.name;
+    const region = regionOf(municipality);
+    // On Gotland the municipality is Region Gotland, so the region isn't repeated.
+    const place = region && code !== GOTLAND ? `${municipality.name}, ${region}` : municipality.name;
     // The word joiners (\u2060) keep the year range on one line.
     heading.textContent = `Bilar, befolkning och körsträcka i ${place}, 1975\u2060–\u20602025`;
     body.replaceChildren(...population.years.map((year) => {
@@ -271,15 +296,15 @@ async function loadMunicipalities() {
   // accents and case are ignored, so "malmo" finds Malmö.
   const plain = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
   // Sweden can be searched for too, in Swedish or English.
-  const sweden = { code: SWEDEN, name: "Hela Sverige", county: "" };
-  const listed = [sweden, ...[...population.data].sort((a, b) => byName(a.name, b.name))];
+  const sweden = { code: SWEDEN, name: "Hela Sverige" };
+  const listed = [sweden, ...alphabetical];
   const byPlainName = [
     ...listed.map((m) => [plain(m.name), m]),
     ...["Sverige", "Riket", "Sweden"].map((name) => [plain(name), sweden]),
   ];
   names.replaceChildren(...listed.map((m) => {
     const option = new Option(m.name);
-    option.label = m.county ?? "";
+    option.label = m === sweden ? "" : regionOf(m);
     return option;
   }));
   const find = (text, exact) => {
