@@ -32,6 +32,10 @@ API = "https://api.kolada.se/v3"
 KPI = "U07917"  # Mil (10 km) per inhabitant.
 YEARS = [str(year) for year in range(1975, 2026, 5)]
 MUNICIPALITY = re.compile(r"^\d{4}$")
+# Keep a year if nearly every municipality has a figure; municipalities formed
+# later (Knivsta in 2003) have none for earlier years, and the site estimates
+# any gaps.
+MIN_MUNICIPALITIES = 280
 HEADERS = {"User-Agent": "trafik data fetcher (github.com/andreasn/trafik)"}
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "data" / "municipal_distance.json"
 
@@ -75,10 +79,14 @@ def main():
         for year in YEARS:
             values = year_values(year)
             print(f"  {year}: {len(values)} municipalities")
-            if len(values) >= 290:
+            if len(values) >= MIN_MUNICIPALITIES:
                 by_year[year] = values
             elif values:
                 print(f"  {year}: skipped, only {len(values)} municipalities")
+        everyone = set().union(*by_year.values()) if by_year else set()
+        for year, values in by_year.items():
+            if len(values) < len(everyone):
+                print(f"  {year}: no figure for {', '.join(sorted(everyone - set(values)))}")
     except urllib.error.HTTPError as error:
         sys.exit(f"Kolada returned HTTP {error.code} for {error.url}")
     except urllib.error.URLError as error:
