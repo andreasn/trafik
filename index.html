@@ -37,25 +37,29 @@
     </section>
 
     <section aria-labelledby="municipalities-heading">
-      <h2 id="municipalities-heading">Cars and population by municipality, 1975–2025</h2>
-      <p class="lead">Choose one of Sweden's 290 municipalities to see its passenger cars in traffic and population.</p>
+      <h2 id="municipalities-heading">Cars, population and distance driven by municipality, 1975–2025</h2>
+      <p class="lead">Choose one of Sweden's 290 municipalities to see its passenger cars in traffic, population and estimated distance driven by passenger cars.</p>
       <label class="picker">
         Municipality
         <select id="municipality-select"></select>
       </label>
 
-      <table id="municipality-table">
-        <caption id="municipality-caption">Passenger cars and population, five-year intervals</caption>
-        <thead>
-          <tr>
-            <th scope="col">Year</th>
-            <th scope="col" class="number">Cars in traffic</th>
-            <th scope="col" class="number">Population</th>
-            <th scope="col" class="number">Cars per 1,000</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <p class="caption" id="municipality-caption">Passenger cars, population and distance driven, five-year intervals</p>
+      <div class="scroll">
+        <table id="municipality-table" aria-labelledby="municipality-caption">
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col" class="number">Cars in traffic</th>
+              <th scope="col" class="number">Population</th>
+              <th scope="col" class="number">Cars per 1,000</th>
+              <th scope="col" class="number">Car-km (millions)</th>
+              <th scope="col" class="number">Km per inhabitant</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
       <p class="source" id="municipality-source"></p>
     </section>

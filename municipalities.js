@@ -17,11 +17,13 @@ async function loadMunicipalities() {
   });
   let population;
   let cars;
+  let distance;
   try {
-    // The page still works without the car figures.
-    [population, cars] = await Promise.all([
+    // The page still works without the car and distance figures.
+    [population, cars, distance] = await Promise.all([
       load("data/municipalities.json"),
       load("data/municipal_cars.json").catch(() => null),
+      load("data/car_distance.json").catch(() => null),
     ]);
   } catch (error) {
     source.textContent = `Could not load municipality data (${error.message}).`;
@@ -29,10 +31,43 @@ async function loadMunicipalities() {
   }
   const byCode = new Map(population.data.map((m) => [m.code, m]));
   const carsByCode = new Map((cars?.data ?? []).map((m) => [m.code, m.cars]));
+  const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  // Trafikanalys doesn't publish distance driven per municipality, so it is
+  // estimated by sharing out Sweden's passenger-car distance. Where the
+  // Körsträckor report has county averages per car (2025), each
+  // municipality's share is its cars weighted by its county's average;
+  // otherwise its plain share of Sweden's cars. Either way the estimates add
+  // up to Sweden's total.
+  const weight = (code, year) => {
+    const vehicles = carsByCode.get(code)?.[year] ?? 0;
+    const countyAverage = distance?.countyKmPerCar[year]?.kmPerCar[code.slice(0, 2)];
+    return countyAverage ? vehicles * countyAverage : vehicles;
+  };
+  const totalWeight = {};
+  for (const [code, counts] of carsByCode) {
+    for (const year of Object.keys(counts)) totalWeight[year] = (totalWeight[year] ?? 0) + weight(code, year);
+  }
+  function estimatedKm(code, year) {
+    const swedenKm = (distance?.swedenCarKmMillions[year] ?? 0) * 1e6;
+    const share = weight(code, year);
+    return swedenKm && share && totalWeight[year] ? (swedenKm * share) / totalWeight[year] : null;
+  }
+  const countyYears = Object.keys(distance?.countyKmPerCar ?? {});
+
   source.textContent =
+    (distance
+      ? "* Estimate: Trafikanalys doesn't publish distance driven per municipality, so " +
+        (countyYears.length
+          ? `Sweden's passenger-car distance is shared out by the municipality's passenger cars, weighted for ${countyYears.join(", ")} ` +
+            "by its county's average distance per car and for other years unweighted. "
+          : "Sweden's passenger-car distance is shared out by the municipality's share of Sweden's cars. "
+        )
+      : "") +
     "A dash means there is no figure: SCB has cars per municipality from 2002, and some " +
     "municipalities were formed after 1975. Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
+    (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
     `${population.source} (retrieved ${population.retrieved}).`;
 
   // One group per county, both in Swedish alphabetical order.
@@ -52,20 +87,40 @@ async function loadMunicipalities() {
     const municipality = byCode.get(code);
     const carCounts = carsByCode.get(code) ?? {};
     select.value = code;
-    caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars and population, five-year intervals`;
+    caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and distance driven, five-year intervals`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
       const vehicles = carCounts[year];
       const perThousand = people && vehicles != null ? Math.round((vehicles / people) * 1000) : null;
+      const km = estimatedKm(code, year);
+      const kmPerPerson = km && people ? Math.round(km / people) : null;
       const tr = document.createElement("tr");
       const yearCell = document.createElement("th");
       yearCell.scope = "row";
       yearCell.textContent = year;
       tr.append(yearCell);
-      for (const value of [vehicles, people, perThousand]) {
+      // Distance driven is estimated; those cells get an asterisk.
+      const cells = [
+        { value: vehicles },
+        { value: people },
+        { value: perThousand },
+        { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: true },
+        { value: kmPerPerson, estimate: true },
+      ];
+      for (const { value, estimate } of cells) {
         const cell = document.createElement("td");
         cell.className = value == null ? "number missing" : "number";
-        cell.textContent = value == null ? "–" : number.format(value);
+        if (value == null) {
+          cell.textContent = "–";
+        } else {
+          cell.textContent = typeof value === "string" ? value : number.format(value);
+          if (estimate) {
+            const mark = document.createElement("abbr");
+            mark.title = "Estimate";
+            mark.textContent = "*";
+            cell.append(mark);
+          }
+        }
         tr.append(cell);
       }
       return tr;
