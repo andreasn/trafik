@@ -19,13 +19,15 @@ async function loadMunicipalities() {
   let cars;
   let distance;
   let swedenCars;
+  let trends;
   try {
     // The page still works without the car and distance figures.
-    [population, cars, distance, swedenCars] = await Promise.all([
+    [population, cars, distance, swedenCars, trends] = await Promise.all([
       load("data/municipalities.json"),
       load("data/municipal_cars.json").catch(() => null),
       load("data/car_distance.json").catch(() => null),
       load("data/cars.json").catch(() => null),
+      load("data/itf_trends.json").catch(() => null),
     ]);
   } catch (error) {
     source.textContent = `Could not load municipality data (${error.message}).`;
@@ -61,18 +63,26 @@ async function loadMunicipalities() {
     totalWeight[year] = population.data.reduce((sum, m) => sum + weight(m.code, year), 0);
   }
 
-  // Sweden's passenger-car distance from Trafikanalys starts in 1990; earlier
-  // years are Sweden's passenger cars times the vehicle-km per car of the
-  // first year with a figure, as in the national table.
+  // Sweden's passenger-car distance from Trafikanalys starts in 1990. As in
+  // the national table, earlier years scale the first year by ITF's
+  // passenger-km travelled by car, or without that file by Sweden's
+  // passenger cars times the first year's km per car.
   const swedenCarKm = Object.fromEntries(
     Object.entries(distance?.swedenCarKmMillions ?? {}).map(([year, millions]) => [year, millions * 1e6]),
   );
   const firstKmYear = Object.keys(swedenCarKm).sort()[0];
   const nationalCars = new Map((swedenCars?.data ?? []).map((row) => [String(row.year), row.cars]));
   const kmPerCar = firstKmYear && nationalCars.get(firstKmYear) ? swedenCarKm[firstKmYear] / nationalCars.get(firstKmYear) : null;
+  const passengerKm = trends?.carPassengerKmMillions ?? {};
   for (const [year, count] of nationalCars) {
-    if (!(year in swedenCarKm) && kmPerCar && year < firstKmYear) swedenCarKm[year] = count * kmPerCar;
+    if (year in swedenCarKm || !firstKmYear || year >= firstKmYear) continue;
+    if (passengerKm[year] && passengerKm[firstKmYear]) {
+      swedenCarKm[year] = swedenCarKm[firstKmYear] * (passengerKm[year] / passengerKm[firstKmYear]);
+    } else if (kmPerCar) {
+      swedenCarKm[year] = count * kmPerCar;
+    }
   }
+  const usesTrends = Boolean(passengerKm[firstKmYear]);
 
   // Before SCB's municipal car counts, cars in traffic are estimated the same
   // way: Sweden's passenger cars shared out by the same weights.
@@ -101,7 +111,10 @@ async function loadMunicipalities() {
         (baseYear
           ? `Before ${baseYear}, when SCB has no municipal car counts, the share is the municipality's population ` +
             `times its cars per inhabitant in ${baseYear}` +
-            (firstKmYear ? `, and before ${firstKmYear} Sweden's passenger-car distance is itself estimated from the number of cars. ` : ". ") +
+            (firstKmYear
+              ? `, and before ${firstKmYear} Sweden's passenger-car distance is itself estimated ` +
+                (usesTrends ? "from ITF's passenger-km travelled by car. " : "from the number of cars. ")
+              : ". ") +
             `Cars in traffic before ${baseYear} are estimated the same way, by sharing out Sweden's passenger cars. `
           : "")
       : "") +
@@ -109,6 +122,7 @@ async function loadMunicipalities() {
     "Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
     (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
+    (usesTrends ? `${trends.source} (retrieved ${trends.retrieved}); ` : "") +
     `${population.source} (retrieved ${population.retrieved}).`;
 
   // One group per county, both in Swedish alphabetical order.

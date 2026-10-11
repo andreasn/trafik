@@ -1,6 +1,7 @@
 // Fills the national summary and table from data/cars.json and
-// data/population.json (fetched from SCB) and data/traffic.json (fetched from
-// Trafikanalys) by the scripts in scripts/.
+// data/population.json (fetched from SCB), data/traffic.json and
+// data/car_distance.json (Trafikanalys) and data/itf_trends.json (ITF/OECD),
+// all fetched by the scripts in scripts/.
 
 const number = new Intl.NumberFormat("en-GB");
 const oneDecimal = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -10,27 +11,47 @@ function millions(value, digits = 1) {
 }
 
 async function load() {
-  const [cars, population, traffic] = await Promise.all(
-    ["data/cars.json", "data/population.json", "data/traffic.json"].map((url) => fetch(url).then((response) => {
-      if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
-      return response.json();
-    })),
-  );
+  const load = (url) => fetch(url).then((response) => {
+    if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+    return response.json();
+  });
+  // The ITF trends and car distance only refine the pre-1990 estimate.
+  const [cars, population, traffic, trends, carDistance] = await Promise.all([
+    load("data/cars.json"),
+    load("data/population.json"),
+    load("data/traffic.json"),
+    load("data/itf_trends.json").catch(() => null),
+    load("data/car_distance.json").catch(() => null),
+  ]);
 
   const people = new Map(population.data.map((row) => [row.year, row.population]));
   const km = new Map(traffic.data.map((row) => [row.year, row.vehicleKmMillions * 1e6]));
   const carCounts = new Map(cars.data.map((row) => [row.year, row.cars]));
 
   // Trafikanalys's distance series starts in 1990. Earlier years are
-  // estimated from the car fleet: that year's passenger cars times the
-  // vehicle-km per car in the first year with a figure.
+  // estimated by scaling that first year: its passenger-car km by ITF's
+  // passenger-km by car, and the rest (lorries, buses and so on) by ITF's road
+  // freight tonne-km. Without the ITF file, by the number of passenger cars.
   const firstKmYear = Math.min(...km.keys());
+  const base = String(firstKmYear);
+  const carKm = (carDistance?.swedenCarKmMillions[base] ?? 0) * 1e6;
+  const passengerKm = trends?.carPassengerKmMillions;
+  const tonneKm = trends?.roadTonneKmMillions;
+  const useTrends = Boolean(carKm && passengerKm?.[base] && tonneKm?.[base]);
   const kmPerCar = km.get(firstKmYear) / carCounts.get(firstKmYear);
+  function estimatedKm(year, carCount) {
+    const y = String(year);
+    if (useTrends && passengerKm[y] && tonneKm[y]) {
+      return carKm * (passengerKm[y] / passengerKm[base]) + (km.get(firstKmYear) - carKm) * (tonneKm[y] / tonneKm[base]);
+    }
+    return Number.isFinite(kmPerCar) ? carCount * kmPerCar : null;
+  }
 
   const rows = cars.data.map((row) => {
     const inhabitants = people.get(row.year);
-    const estimated = !km.has(row.year) && row.year < firstKmYear && Number.isFinite(kmPerCar);
-    const driven = km.get(row.year) ?? (estimated ? row.cars * kmPerCar : null);
+    const fallback = !km.has(row.year) && row.year < firstKmYear ? estimatedKm(row.year, row.cars) : null;
+    const estimated = fallback != null;
+    const driven = km.get(row.year) ?? fallback;
     return {
       year: row.year,
       cars: row.cars,
@@ -89,15 +110,19 @@ async function load() {
   const estimates = rows.filter((row) => row.estimated).map((row) => row.year);
   document.getElementById("cars-source").textContent =
     (estimates.length
-      ? `* Estimate: Trafikanalys's distance series starts in ${firstKmYear}, so for ${estimates.join(", ")} ` +
-        `each year's passenger cars are multiplied by the ${number.format(Math.round(kmPerCar))} vehicle-km per car ` +
-        `of ${firstKmYear}. Between 1990 and 2015 that ratio stayed within about 3%, but it assumes cars were driven ` +
-        "as much in earlier years and that trucks and buses grew in step with cars. "
+      ? `* Estimate: Trafikanalys's distance series starts in ${firstKmYear}, so ${estimates.join(", ")} ` +
+        (useTrends
+          ? `scale ${firstKmYear}'s figure: passenger-car km by ITF's passenger-km travelled by car, and other ` +
+            "vehicles' km by ITF's road freight tonne-km. Checked against 1995 this lands within 1% of the official " +
+            "figure; it assumes about as many people per car and as much freight per lorry as in 1990. "
+          : `are each year's passenger cars times the ${number.format(Math.round(kmPerCar))} vehicle-km per car of ` +
+            `${firstKmYear}, which assumes cars were driven as much in earlier years. `)
       : "") +
     "Cars in traffic are counted at the end of December; population on 31 December. " +
     "Distance driven is all vehicle types together. " +
     `Sources: ${cars.source} (retrieved ${cars.retrieved}); ${population.source} (retrieved ${population.retrieved}); ` +
-    `${traffic.source} (retrieved ${traffic.retrieved}).`;
+    `${traffic.source} (retrieved ${traffic.retrieved})` +
+    (useTrends && estimates.length ? `; ${trends.source} (retrieved ${trends.retrieved}).` : ".");
 }
 
 load().catch((error) => {
