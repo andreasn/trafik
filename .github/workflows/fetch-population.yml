@@ -12,6 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Probe Trafikanalys (temporary)
+        run: python3 -u scripts/probe_trafa.py
+
+      - name: Stop before fetching (temporary)
+        run: exit 1
+
       - name: Fetch population from SCB
         run: python3 -u scripts/fetch_population.py
 
