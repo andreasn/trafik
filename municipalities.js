@@ -74,6 +74,15 @@ async function loadMunicipalities() {
     if (!(year in swedenCarKm) && kmPerCar && year < firstKmYear) swedenCarKm[year] = count * kmPerCar;
   }
 
+  // Before SCB's municipal car counts, cars in traffic are estimated the same
+  // way: Sweden's passenger cars shared out by the same weights.
+  function estimatedCars(code, year) {
+    if (!baseYear || String(year) >= baseYear) return null;
+    const swedenCount = nationalCars.get(String(year));
+    const share = weight(code, String(year));
+    return swedenCount && share && totalWeight[year] ? Math.round((swedenCount * share) / totalWeight[year]) : null;
+  }
+
   function estimatedKm(code, year) {
     const swedenKm = swedenCarKm[year];
     const share = weight(code, String(year));
@@ -92,11 +101,12 @@ async function loadMunicipalities() {
         (baseYear
           ? `Before ${baseYear}, when SCB has no municipal car counts, the share is the municipality's population ` +
             `times its cars per inhabitant in ${baseYear}` +
-            (firstKmYear ? `, and before ${firstKmYear} Sweden's passenger-car distance is itself estimated from the number of cars. ` : ". ")
+            (firstKmYear ? `, and before ${firstKmYear} Sweden's passenger-car distance is itself estimated from the number of cars. ` : ". ") +
+            `Cars in traffic before ${baseYear} are estimated the same way, by sharing out Sweden's passenger cars. `
           : "")
       : "") +
-    "A dash means there is no figure: SCB has cars per municipality from 2002, and some " +
-    "municipalities were formed after 1975. Cars in traffic at the end of the year; population on 31 December. " +
+    "A dash means there is no figure: some municipalities were formed after 1975. " +
+    "Cars in traffic at the end of the year; population on 31 December. " +
     (cars ? `Source: ${cars.source} (retrieved ${cars.retrieved}); ` : "Source: ") +
     (distance ? `${distance.source} (retrieved ${distance.retrieved}); ` : "") +
     `${population.source} (retrieved ${population.retrieved}).`;
@@ -121,7 +131,9 @@ async function loadMunicipalities() {
     caption.textContent = `${municipality.name}, ${municipality.county ?? "Sweden"}: passenger cars, population and distance driven, five-year intervals`;
     body.replaceChildren(...population.years.map((year) => {
       const people = municipality.population[year];
-      const vehicles = carCounts[year];
+      const counted = carCounts[year];
+      const carsEstimated = counted == null;
+      const vehicles = counted ?? estimatedCars(code, year);
       const perThousand = people && vehicles != null ? Math.round((vehicles / people) * 1000) : null;
       const km = estimatedKm(code, year);
       const kmPerPerson = km && people ? Math.round(km / people) : null;
@@ -130,11 +142,12 @@ async function loadMunicipalities() {
       yearCell.scope = "row";
       yearCell.textContent = year;
       tr.append(yearCell);
-      // Distance driven is estimated; those cells get an asterisk.
+      // Distance driven, and cars before SCB's counts, are estimated; those
+      // cells get an asterisk.
       const cells = [
-        { value: vehicles },
+        { value: vehicles, estimate: carsEstimated },
         { value: people },
-        { value: perThousand },
+        { value: perThousand, estimate: carsEstimated },
         { value: km == null ? null : oneDecimal.format(km / 1e6), estimate: true },
         { value: kmPerPerson, estimate: true },
       ];
