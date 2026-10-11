@@ -11,7 +11,8 @@ SIKA's historical series (see below). It is filled in by `cars.js` from
 `data/cars.json`, `data/population.json`, `data/traffic.json` and
 `data/historical_traffic.json`.
 
-Below that, you can pick any municipality (grouped by county) to see its
+Below that, you can pick any municipality (grouped by county, or by typing
+part of its name in the search box, accents optional) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
 same years, in a table like the national one, with an estimate of the distance
 driven by its passenger cars. Estimates are marked with an asterisk. It is

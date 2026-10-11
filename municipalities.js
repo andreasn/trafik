@@ -7,6 +7,8 @@
 // Stockholm) so a link opens the same municipality.
 async function loadMunicipalities() {
   const select = document.getElementById("municipality-select");
+  const search = document.getElementById("municipality-search");
+  const names = document.getElementById("municipality-names");
   const caption = document.getElementById("municipality-caption");
   const body = document.querySelector("#municipality-table tbody");
   const source = document.getElementById("municipality-source");
@@ -229,9 +231,45 @@ async function loadMunicipalities() {
   }
 
   const fromHash = () => location.hash.slice(1);
-  select.addEventListener("change", () => {
-    history.replaceState(null, "", `#${select.value}`);
-    show(select.value);
+  const choose = (code) => {
+    history.replaceState(null, "", `#${code}`);
+    show(code);
+  };
+  select.addEventListener("change", () => choose(select.value));
+
+  // The search box suggests names as you type (the browser filters the
+  // list). Picking a suggestion, or pressing Enter, shows the best match;
+  // accents and case are ignored, so "malmo" finds Malmö.
+  const plain = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
+  const byPlainName = [...population.data].sort((a, b) => byName(a.name, b.name)).map((m) => [plain(m.name), m]);
+  names.replaceChildren(...byPlainName.map(([, m]) => {
+    const option = new Option(m.name);
+    option.label = m.county ?? "";
+    return option;
+  }));
+  const find = (text, exact) => {
+    const query = plain(text);
+    if (!query) return null;
+    const hit = byPlainName.find(([name]) => name === query) ??
+      (exact ? undefined : byPlainName.find(([name]) => name.startsWith(query)) ?? byPlainName.find(([name]) => name.includes(query)));
+    return hit?.[1] ?? null;
+  };
+  const pick = (m) => {
+    choose(m.code);
+    search.value = "";
+    search.blur();
+  };
+  search.addEventListener("input", (event) => {
+    // Only a picked suggestion, not typing: "Mark" is also the start of "Markaryd".
+    if (event instanceof InputEvent && event.inputType !== "insertReplacementText") return;
+    const m = find(search.value, true);
+    if (m) pick(m);
+  });
+  search.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const m = find(search.value, false);
+    if (m) pick(m);
   });
   addEventListener("hashchange", () => byCode.has(fromHash()) && show(fromHash()));
   show(byCode.has(fromHash()) ? fromHash() : byCode.has("0180") ? "0180" : population.data[0].code);
