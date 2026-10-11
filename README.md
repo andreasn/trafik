@@ -152,7 +152,26 @@ series starts in 1990, so 1975, 1980 and 1985 are listed under
 }
 ```
 
-## Estimated distance driven per municipality
+## Distance driven per municipality
+
+`scripts/fetch_kolada_distance.py` downloads Trafikanalys's distance driven by
+passenger cars per inhabitant for every municipality from Kolada, the open
+database of municipal statistics (indicator `U07917`, *Genomsnittlig
+körsträcka med personbil, mil/inv*), and saves it in km to
+`data/municipal_distance.json`. Kolada has 1999, 2000, 2005 and every year from
+2008, so of the site's years 2000–2020 are official; 2025 is filled in once
+Kolada publishes it, and the rest are estimated as below. Like the national
+statistics it is owner-based: cars count where they are registered, wherever
+they were driven, and company cars count where the company is registered,
+which raises the figures for municipalities with many head offices.
+
+```sh
+python3 scripts/fetch_kolada_distance.py
+```
+
+The site shows car-km as the km per inhabitant times the population.
+
+### Estimates for the other years
 
 Trafikanalys doesn't publish distance driven per municipality: its finest
 breakdown is the county the vehicle is registered in. So the site estimates it
