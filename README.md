@@ -6,19 +6,19 @@ The front page shows one table for Sweden as a whole, 1975–2025 in five-year
 intervals: passenger cars in traffic, population, cars per 1,000 inhabitants (so
 growth isn't just population growth), and the distance driven on Swedish roads
 in billions of vehicle-kilometres and per inhabitant, with a short summary above
-it. Trafikanalys's distance series starts in 1990, so 1975–1985 are estimates,
-marked with an asterisk. They scale 1990's figure by long-run trends from the
-International Transport Forum (ITF): passenger-car km by passenger-km travelled
-by car, and other vehicles' km by road freight tonne-km. Applied to 1995 this
-lands within 1% of the official figure. It is filled in by `cars.js` from `data/cars.json`, `data/population.json`
-and `data/traffic.json`.
+it. Trafikanalys's distance series starts in 1990, so 1975–1985 come from
+SIKA's historical series (see below). It is filled in by `cars.js` from
+`data/cars.json`, `data/population.json`, `data/traffic.json` and
+`data/historical_traffic.json`.
 
 Below that, you can pick any municipality (grouped by county) to see its
 passenger cars in traffic, population and cars per 1,000 inhabitants for the
 same years, in a table like the national one, with an estimate of the distance
-driven by its passenger cars. It is drawn by `municipalities.js` from
-`data/municipalities.json`, `data/municipal_cars.json` and
-`data/car_distance.json`. The address keeps the
+driven by its passenger cars. Estimates are marked with an asterisk. It is
+drawn by `municipalities.js` from `data/municipalities.json`,
+`data/municipal_cars.json`, `data/car_ownership.json`,
+`data/municipal_distance.json`, `data/car_distance.json` and
+`data/historical_traffic.json`. The address keeps the
 municipality code, so for example `#0180` opens Stockholm.
 
 In both tables the highest number in each column is bold (`tables.js`).
@@ -117,8 +117,8 @@ like this:
 traffic at the end of each year in every municipality and saves it to
 `data/municipal_cars.json`. SCB only has these figures per municipality from
 2002 (table TAB1278, *Fordon i trafik efter län och kommun samt fordonsslag*),
-so 1975–2000 are `null` and show as a dash on the site. It finds the table
-through SCB's table search like the other scripts:
+so 1975–2000 are `null` in the file (see the next section for those years). It
+finds the table through SCB's table search like the other scripts:
 
 ```sh
 python3 scripts/fetch_municipal_cars.py
@@ -127,6 +127,26 @@ python3 scripts/fetch_municipal_cars.py
 The file has `years`, the national total in `sweden`, and one
 `{ "code": "0114", "cars": { "2005": ..., "2025": ... } }` entry per
 municipality, matching the codes in `data/municipalities.json`.
+
+## Earlier cars per 1,000 inhabitants per municipality
+
+`scripts/fetch_car_ownership.py` fills in some of the years before SCB's
+municipal counts. RUS, the county administrative boards' site for the
+environmental objectives, republishes SCB's passenger cars in traffic per 1,000
+inhabitants for every municipality in table 1 of its *Körsträckor* statistics
+(https://www.rus.se/statistik-och-indikatorer/korstrackor/), including 1974,
+1980, 1990, 1995, 1998 and 2000. The script finds the workbook on that page (its
+name changes every year), reads it with Python's standard library and saves
+the years before 2003 to `data/car_ownership.json`:
+
+```sh
+python3 scripts/fetch_car_ownership.py
+```
+
+The site multiplies a rate by the municipality's population to get its cars
+in traffic, which for Sweden as a whole lands within 0.03% of SCB's count.
+Municipalities that didn't exist yet in a year have no figure (`null`); 268
+have one for 1974 and 289 for 2000 (all but Knivsta).
 
 ## Distance driven
 
@@ -141,7 +161,7 @@ python3 scripts/fetch_traffic.py
 It uses Trafikanalys's open API (`api.trafa.se`), product *Trafikarbete*
 (`t04010`), measure *Fordonskilometer* in millions of vehicle-kilometres. The
 series starts in 1990, so 1975, 1980 and 1985 are listed under
-`unavailableYears` in the file:
+`unavailableYears` in the file (the site takes them from SIKA, below):
 
 ```json
 {
@@ -151,6 +171,17 @@ series starts in 1990, so 1975, 1980 and 1985 are listed under
   "data": [{ "year": 1990, "vehicleKmMillions": 64310 }, ...]
 }
 ```
+
+### Before 1990: SIKA's historical series
+
+`data/historical_traffic.json` has million vehicle-km on Swedish roads in 1975,
+1980, 1985 and 1990, all vehicles and passenger cars, from table 16 of SIKA
+PM 1999:5 (also published as VTI rapport 439,
+https://www.trafa.se/globalassets/sika/sika-pm/pm_199905.pdf). SIKA was the
+agency for transport statistics before Trafikanalys. The report is a fixed
+PDF, so the figures were typed in by hand rather than fetched. Its 1990 total
+(64,310) is the same as Trafikanalys's, so the national table uses its totals
+for 1975–1985 as they are.
 
 ## Distance driven per municipality
 
@@ -202,34 +233,23 @@ municipality's share is:
 - for other years with SCB's municipal car counts (2005 and 2010), simply its
   share of Sweden's passenger cars, which ignores regional differences;
 - before those counts (1975–2000), its population times its cars per
-  inhabitant in 2005, which assumes its car ownership relative to other
-  municipalities stayed as in 2005.
+  inhabitant: RUS's figure where there is one (1980, 1990, 1995 and 2000),
+  otherwise interpolated between the nearest years with a figure from RUS or
+  SCB (1975 between 1974 and 1980, 1985 between 1980 and 1990), or the nearest
+  such year for municipalities with none on one side.
 
-Cars in traffic per municipality are official from 2005. For 1975–2000 they
-are estimated the same way: Sweden's passenger cars shared out by each
-municipality's population times its 2005 cars per inhabitant. These, and the
-cars per 1,000 derived from them, are marked with an asterisk too.
+Cars in traffic per municipality are SCB's count from 2005 and RUS's rate
+times the population for 1980, 1990, 1995 and 2000. For 1975, 1985 and
+municipalities RUS has no figure for, they are estimated: Sweden's passenger
+cars shared out by the same population times cars per inhabitant. These, and
+the cars per 1,000 derived from them, are marked with an asterisk.
 
 Sweden's passenger-car distance itself is official from 1990. For 1975–1985 it
-is 1990's figure scaled by ITF's passenger-km travelled by car, as in the
-national table. Municipalities formed after 1975 have no estimate before they
-existed. (The county averages can't be multiplied straight by SCB's car counts:
+is 1990's figure scaled by SIKA's passenger-car km (the two series differ by
+about 2% in 1990, so their figures aren't used as they are). Municipalities
+formed after 1975 have no estimate before they existed. (The county averages can't be multiplied straight by SCB's car counts:
 they are per car in traffic at any time in the year, SCB counts cars at year
 end, and the product falls about 10% short of Sweden's total.)
-
-## Long-run trends from ITF
-
-`scripts/fetch_itf_trends.py` downloads two series for Sweden from the
-International Transport Forum's annual transport trends, through OECD's open
-data API (`sdmx.oecd.org`), and saves them to `data/itf_trends.json`: road
-passenger-km travelled by passenger car and road freight tonne-km, 1975–1995.
-They are only used to estimate distance driven before Trafikanalys's series
-starts in 1990; without the file the site falls back to scaling by the number
-of passenger cars.
-
-```sh
-python3 scripts/fetch_itf_trends.py
-```
 
 ## Using the data
 

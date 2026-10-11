@@ -1,0 +1,14 @@
+{
+  "title": "Distance driven on Swedish roads, 1975-1990",
+  "unit": "million vehicle-kilometres",
+  "source": "SIKA PM 1999:5 (also VTI rapport 439), table 16: Skattat antal miljoner fordonskilometer för olika fordonstyper 1950–1997",
+  "sourceUrl": "https://www.trafa.se/globalassets/sika/sika-pm/pm_199905.pdf",
+  "transcribed": "2026-10-11",
+  "note": "Typed in from the report, which is not updated. Its 1990 total is the same as Trafikanalys's.",
+  "data": [
+    { "year": 1975, "vehicleKmMillions": 43342, "passengerCarKmMillions": 37681 },
+    { "year": 1980, "vehicleKmMillions": 51573, "passengerCarKmMillions": 45192 },
+    { "year": 1985, "vehicleKmMillions": 54888, "passengerCarKmMillions": 47790 },
+    { "year": 1990, "vehicleKmMillions": 64310, "passengerCarKmMillions": 54614 }
+  ]
+}
