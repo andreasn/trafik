@@ -2,7 +2,7 @@
   "title": "Distance driven by passenger cars: Sweden's total and county averages",
   "source": "Trafikanalys, Trafikarbete (t04010, personbilar) och Körsträckor tabell RS1",
   "sourceUrl": "https://api.trafa.se/api/data?lang=sv&query=t04010|ar|fslag:10|fordonkm",
-  "retrieved": "2026-10-11",
+  "retrieved": "2026-10-12",
   "swedenCarKmMillions": {
     "1990": 55756,
     "1995": 56890,

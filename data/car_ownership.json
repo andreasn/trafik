@@ -3,7 +3,7 @@
   "unit": "cars per 1,000 inhabitants",
   "source": "RUS (länsstyrelsernas webbplats för miljömålen), Körsträckor tabell 1: Bilinnehav per 1000 invånare, från Statistiska centralbyrån (SCB)",
   "sourceUrl": "https://www.rus.se/wp-content/uploads/Tabell-1-Bilinnehav-till-ar-2025.xlsx",
-  "retrieved": "2026-10-11",
+  "retrieved": "2026-10-12",
   "years": [
     1974,
     1980,

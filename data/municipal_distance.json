@@ -3,7 +3,7 @@
   "unit": "km per inhabitant",
   "source": "Trafikanalys via Kolada, U07917: Genomsnittlig körsträcka med personbil, mil/inv",
   "sourceUrl": "https://api.kolada.se/v3/data/kpi/U07917",
-  "retrieved": "2026-10-11",
+  "retrieved": "2026-10-12",
   "years": [
     2000,
     2005,
