@@ -275,6 +275,8 @@ async function loadMunicipalities() {
       ? `Invånare per km² är folkmängden delad med landarealen (utan sjöar och hav); åren före ${land.years[0]} ` +
         `använder arealen ${land.years[0]}. `
       : "") +
+    "Mil per bil är personbilsmilen delad med antalet personbilar i trafik vid årets slut; där körsträckan " +
+    "är uppskattad blir den nära rikets, eftersom uppskattningen fördelar körsträckan efter antalet bilar. " +
     "Ett streck betyder att uppgift saknas: vissa kommuner bildades efter 1975. " +
     "Personbilar i trafik vid årets slut, folkmängd den 31 december. " +
     (cars ? `Källor: ${cars.source} (hämtad ${cars.retrieved}); ` : "Källor: ") +
@@ -333,6 +335,7 @@ async function loadMunicipalities() {
         { value: versus(people && vehicles != null ? vehicles / people : null, swedenCarsPerPerson(year)), estimate: carsEstimated },
         { value: km == null ? null : oneDecimal.format(km / 1e7), estimate: !kmOfficial },
         { value: milPerPerson, estimate: !kmOfficial },
+        { value: km != null && vehicles ? Math.round(km / vehicles / 10) : null, estimate: !kmOfficial || carsEstimated },
         { value: versus(km != null && people ? km / people : null, swedenKmPerPerson(year)), estimate: !kmOfficial },
       ];
       for (const { value, estimate } of cells) {

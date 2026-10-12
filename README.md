@@ -138,6 +138,12 @@ up to Sweden's land area.
 python3 scripts/fetch_land_area.py
 ```
 
+Both tables also have a "Mil per bil" (mil per car) column, hidden by default:
+passenger-car distance divided by passenger cars in traffic at the end of the
+year (nationally from Trafikanalys from 1990 and SIKA before; per
+municipality from the car-mil and cars in the table, so it is an estimate
+wherever either is).
+
 Both tables have an "Invånare per km²" (inhabitants per km²) column, hidden
 until you tick it under "Visa kolumner": the population divided by the land
 area, with one decimal below 10.
