@@ -97,9 +97,10 @@ async function loadMunicipalities() {
   let swedenCars;
   let historical;
   let official;
+  let land;
   try {
     // The page still works without the car and distance figures.
-    [population, cars, ownership, distance, swedenCars, historical, official] = await Promise.all([
+    [population, cars, ownership, distance, swedenCars, historical, official, land] = await Promise.all([
       load("data/municipalities.json"),
       load("data/municipal_cars.json").catch(() => null),
       load("data/car_ownership.json").catch(() => null),
@@ -107,6 +108,7 @@ async function loadMunicipalities() {
       load("data/cars.json").catch(() => null),
       load("data/historical_traffic.json").catch(() => null),
       load("data/municipal_distance.json").catch(() => null),
+      load("data/land_area.json").catch(() => null),
     ]);
   } catch (error) {
     source.textContent = `Kunde inte läsa in kommundata (${error.message}).`;
@@ -121,6 +123,7 @@ async function loadMunicipalities() {
   const officialKm = new Map((official?.data ?? []).map((m) => [m.code, m.kmPerInhabitant]));
   const officialYears = (official?.years ?? []).map(String);
   const oneDecimal = new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const areasByCode = new Map((land?.data ?? []).map((m) => [m.code, m.landAreaKm2]));
 
   // SCB counts cars per municipality from 2002 (baseYear is the first table
   // year with counts). Before that, RUS has SCB's cars per 1,000 inhabitants
@@ -268,6 +271,10 @@ async function loadMunicipalities() {
     "+12 % betyder 12 % över rikets genomsnitt. Sträckor anges i mil (1 mil = 10 km). " +
     "För år då en kommun ingick i en annan (till exempel Österåker i Vaxholm 1974–1982) delas båda " +
     "kommunernas bilar efter folkmängd, och de åren räknas som uppskattningar. " +
+    (land
+      ? `Invånare per km² är folkmängden delad med landarealen (utan sjöar och hav); åren före ${land.years[0]} ` +
+        `använder arealen ${land.years[0]}. `
+      : "") +
     "Ett streck betyder att uppgift saknas: vissa kommuner bildades efter 1975. " +
     "Personbilar i trafik vid årets slut, folkmängd den 31 december. " +
     (cars ? `Källor: ${cars.source} (hämtad ${cars.retrieved}); ` : "Källor: ") +
@@ -275,6 +282,7 @@ async function loadMunicipalities() {
     (distance ? `${distance.source} (hämtad ${distance.retrieved}); ` : "") +
     (scaledYears.length ? `${historical.source}; ` : "") +
     (officialYears.length ? `${official.source} (hämtad ${official.retrieved}); ` : "") +
+    (land ? `${land.source} (hämtad ${land.retrieved}); ` : "") +
     `${population.source} (hämtad ${population.retrieved}).`;
 
   // All municipalities in Swedish alphabetical order, after "Hela Sverige".
@@ -320,6 +328,7 @@ async function loadMunicipalities() {
       const cells = [
         { value: vehicles, estimate: carsEstimated },
         { value: people },
+        { value: density(people, areasByCode.get(code), Number(year)) },
         { value: perThousand, estimate: carsEstimated },
         { value: versus(people && vehicles != null ? vehicles / people : null, swedenCarsPerPerson(year)), estimate: carsEstimated },
         { value: km == null ? null : oneDecimal.format(km / 1e7), estimate: !kmOfficial },

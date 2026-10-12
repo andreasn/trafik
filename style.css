@@ -146,7 +146,9 @@ tbody th {
 .hide-5 tr > :nth-child(5),
 .hide-6 tr > :nth-child(6),
 .hide-7 tr > :nth-child(7),
-.hide-8 tr > :nth-child(8) {
+.hide-8 tr > :nth-child(8),
+.hide-9 tr > :nth-child(9),
+.hide-10 tr > :nth-child(10) {
   display: none;
 }
 
