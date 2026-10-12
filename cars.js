@@ -1,7 +1,8 @@
 // Fills the national table from data/cars.json and
 // data/population.json (fetched from SCB), data/traffic.json (Trafikanalys)
-// and data/historical_traffic.json (SIKA, for the years before Trafikanalys's
-// series), all but the last fetched by the scripts in scripts/.
+// data/historical_traffic.json (SIKA, for the years before Trafikanalys's
+// series) and data/land_area.json (SCB), all but the SIKA file fetched by the
+// scripts in scripts/.
 
 const number = new Intl.NumberFormat("sv-SE");
 
@@ -10,11 +11,12 @@ async function load() {
     if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
     return response.json();
   });
-  const [cars, population, traffic, historical] = await Promise.all([
+  const [cars, population, traffic, historical, land] = await Promise.all([
     load("data/cars.json"),
     load("data/population.json"),
     load("data/traffic.json"),
     load("data/historical_traffic.json").catch(() => null),
+    load("data/land_area.json").catch(() => null),
   ]);
 
   const people = new Map(population.data.map((row) => [row.year, row.population]));
@@ -52,6 +54,7 @@ async function load() {
       { text: row.year },
       { text: number.format(row.cars) },
       { text: row.population ? number.format(row.population) : null },
+      { text: density(row.population, land?.sweden, row.year) },
       { text: row.perThousand ? Math.round(row.perThousand) : null },
       // Distance in Swedish mil (10 km): millions in total, per inhabitant.
       { text: row.km ? number.format(Math.round(row.km / 1e7)) : null },
@@ -76,9 +79,14 @@ async function load() {
       ? `. Trafikanalys serie börjar ${firstKmYear}, så ${joinSwedish(older)} kommer från SIKA:s historiska serie, ` +
         `vars siffra för ${firstKmYear} är densamma som Trafikanalys. `
       : ". ") +
+    (land
+      ? `Invånare per km² är folkmängden delad med landarealen (utan sjöar och hav); åren före ${land.years[0]} ` +
+        `använder arealen ${land.years[0]}. `
+      : "") +
     `Källor: ${cars.source} (hämtad ${cars.retrieved}); ${population.source} (hämtad ${population.retrieved}); ` +
     `${traffic.source} (hämtad ${traffic.retrieved})` +
-    (older.length ? `; ${historical.source}.` : ".");
+    (older.length ? `; ${historical.source}` : "") +
+    (land ? `; ${land.source} (hämtad ${land.retrieved}).` : ".");
 }
 
 load().catch((error) => {

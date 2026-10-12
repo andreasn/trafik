@@ -123,6 +123,25 @@ like this:
 }
 ```
 
+## Land area and population density
+
+`scripts/fetch_land_area.py` downloads the land area (lakes and sea excluded)
+of Sweden and every municipality from SCB's table of population density,
+which it finds through SCB's table search, and saves it to
+`data/land_area.json`. SCB has land area per municipality from 1991, so the
+script also keeps that first year, and the site uses it for 1975–1990; land
+area hardly changes except at boundary changes, and the population figures
+already follow today's municipalities. It checks that the municipalities add
+up to Sweden's land area.
+
+```sh
+python3 scripts/fetch_land_area.py
+```
+
+Both tables have an "Invånare per km²" (inhabitants per km²) column, hidden
+until you tick it under "Visa kolumner": the population divided by the land
+area, with one decimal below 10.
+
 ## Passenger cars per municipality
 
 `scripts/fetch_municipal_cars.py` downloads the number of passenger cars in

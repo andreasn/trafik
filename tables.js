@@ -17,6 +17,17 @@ function boldHighest(body) {
   }
 }
 
+// Inhabitants per km² of land, as text: one decimal below 10 (sparsely
+// populated municipalities), otherwise whole numbers. The land area is the
+// year's, or the nearest year's that SCB has (its first year for earlier ones).
+function density(people, areas, year) {
+  const years = Object.keys(areas ?? {}).filter((y) => areas[y]).map(Number);
+  if (!people || !years.length) return null;
+  const nearest = years.reduce((a, b) => (Math.abs(b - year) < Math.abs(a - year) ? b : a));
+  const value = people / areas[nearest];
+  return new Intl.NumberFormat("sv-SE", { maximumFractionDigits: value < 10 ? 1 : 0 }).format(value);
+}
+
 // "1975, 1980 och 1985": a list joined the Swedish way.
 function joinSwedish(items) {
   return items.length > 1 ? `${items.slice(0, -1).join(", ")} och ${items.at(-1)}` : items.join("");

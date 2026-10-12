@@ -2,7 +2,7 @@
   "title": "Passenger cars in traffic in Sweden, end of December",
   "source": "Statistiska centralbyrån (SCB), tabell TAB1277: Fordon enligt bilregistret efter fordonsslag och bestånd. Månad 1975M01-2026M09",
   "sourceUrl": "https://statistikdatabasen.scb.se/api/v2/tables/TAB1277/data",
-  "retrieved": "2026-10-11",
+  "retrieved": "2026-10-12",
   "data": [
     {
       "year": 1975,
