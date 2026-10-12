@@ -36,10 +36,13 @@ jobs:
       - name: Fetch distance driven per municipality from Kolada
         run: python3 -u scripts/fetch_kolada_distance.py
 
+      - name: Fetch land area per municipality from SCB
+        run: python3 -u scripts/fetch_land_area.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
-          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/car_ownership.json data/traffic.json data/car_distance.json data/municipal_distance.json
+          git add data/population.json data/cars.json data/municipalities.json data/municipal_cars.json data/car_ownership.json data/traffic.json data/car_distance.json data/municipal_distance.json data/land_area.json
           git diff --cached --quiet || git commit -m "Update data from SCB, RUS, Trafikanalys and Kolada"
           git push
